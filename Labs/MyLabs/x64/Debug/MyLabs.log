@@ -1,0 +1,5 @@
+﻿  cdatatypes.c
+C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\Labs\MyLabs\cdatatypes.c(8,23): warning C4244: '=': conversion from 'double' to 'unsigned short', possible loss of data
+C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\Labs\MyLabs\cdatatypes.c(23,9): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned short *'
+C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\Labs\MyLabs\cdatatypes.c(23,9): warning C4313: 'printf': '%d' in format string conflicts with argument 1 of type 'unsigned short *'
+  MyLabs.vcxproj -> C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\Labs\MyLabs\x64\Debug\MyLabs.exe

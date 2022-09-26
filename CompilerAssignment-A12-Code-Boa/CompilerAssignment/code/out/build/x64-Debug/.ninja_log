@@ -1,0 +1,5 @@
+# ninja log v5
+19	1379	6855539158524374	CMakeFiles/BoaCompiler.dir/Compilers.c.obj	b799df0798134941
+1	1415	6855539158574392	CMakeFiles/BoaCompiler.dir/Reader.c.obj	c390edadb7225460
+30	1426	6855539158664430	CMakeFiles/BoaCompiler.dir/MainReader.c.obj	7a9a969d31eaf3d2
+1427	2978	6855539174198055	BoaCompiler.exe	dc422154de2c3131

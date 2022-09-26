@@ -1,0 +1,18 @@
+The size of int is: 4
+The size of unsigned int is: 4
+The size of char is: 1
+The size of unsigned char is: 1
+The size of signed char is: 1
+The size of short is: 2
+The size of unsigned short is: 2
+The size of long is: 4
+The size of unsigned long is: 4
+The size of float is: 4
+The size of double is: 8
+The size of long double is: 8
+The size of size_t is: 8
+The size of wchar_t is: 2
+The last positive value is: -851642620
+The last positive unsigned value is: 255
+Here is variable iov: -32768
+ Here is the increment counter: 32768
