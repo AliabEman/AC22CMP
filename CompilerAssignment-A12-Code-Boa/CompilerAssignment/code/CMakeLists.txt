@@ -5,10 +5,10 @@
 
 cmake_minimum_required (VERSION 3.8)
 
-project ("BoaCompiler")
+project ("ApoucCompiler")
 
 # Add source to this project's executable: check name and dependences
-add_executable (BoaCompiler
+add_executable (ApoucCompiler
 	"Compilers.h"	"Compilers.c"
 	"Reader.h"		"Reader.c"		"MainReader.c"
 )

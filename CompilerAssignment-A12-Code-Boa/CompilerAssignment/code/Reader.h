@@ -4,17 +4,22 @@
 * Code version: Fall, 2022
 * Author: Svillen Ranev - Paulo Sousa
 * Professors: Paulo Sousa
+* Student: Aliab Eman
+* Student Number: 041-000-420
 ************************************************************
  _________________________________
 |                                 |
-| ........ BOA LANGUAGE ......... |
-|     __    __    __    __        |
-|    /  \  /  \  /  \  /  \       |
-| __/  __\/  __\/  __\/  __\__    |
-| _/  /__/  /__/  /__/  /_____|   |
-|  \_/ \   / \   / \   / \  \___  |
-|       \_/   \_/   \_/   \___o_> |
-|                                 |
+| ....... 'APOUC' LANGUAGE ...... |
+|///// /\\------\\\\\\\\\\\\\\\\\\|
+|//// // \\  \_\ \\\\\\\\\\\\\\\  |
+|/// //___\\   __/\\\\\           |
+|// //     \\__\\\\\\\            |
+|\\\\\  *  / // /\\\\             |
+|\\\\\\___/ // /\\\\\             |
+|\\\\\\\\/ // /\\\\\\             |
+|///////\\ \\ \\\\\\\\            |
+|///////\\\ \\ \\\\\\\\\\\\\\\\\  |
+|//////\\\\\    \\\\\\\\\\\\\\\\\\|
 | .. ALGONQUIN COLLEGE - 2022F .. |
 |_________________________________|
 
@@ -76,15 +81,19 @@ enum READER_MODE {
 #define READER_DEFAULT_SIZE			250		/* default initial buffer reader capacity */
 #define READER_DEFAULT_INCREMENT	10		/* default increment factor */
 
-/* Add your bit-masks constant definitions here - Defined for BOA */
+/* Add your bit-masks constant definitions here */
 /* BITS                                (7654.3210) */
 #define READER_DEFAULT_FLAG 0x00 	/* (0000.0000)_2 = (000)_10 */
 /* TO_DO: BIT 3: FUL = Full */
+#define READER_FUL 0x08				/* (0000.1000)_2 = (008)_10 */
 /* TO_DO: BIT 2: EMP: Empty */
+#define READER_EMP 0x04				/* (0000.0100)_2 = (004)_10 */
 /* TO_DO: BIT 1: REL = Relocation */
+#define READER_REL 0x02				/* (0000.0010)_2 = (002)_10 */
 /* TO_DO: BIT 0: END = EndOfBuffer */
+#define READER_END 0x01				/* (0000.0001)_2 = (001)_10 */
 
-#define NCHAR				128			/* Chars from 0 to 127 */
+#define NCHAR		128				/* Chars from 0 to 127 */
 
 /* STRUCTURES DEFINITION: SUFIXED BY LANGUAGE NAME (SOFIA) .................................. */
 
@@ -92,46 +101,187 @@ enum READER_MODE {
 
 /* Offset declaration */
 typedef struct position {
-	boa_intg mark;			/* the offset to the mark position (in chars) */
-	boa_intg read;			/* the offset to the get a char position (in chars) */
-	boa_intg wrte;			/* the offset to the add chars (in chars) */
+	apc_intg mark;			/* the offset to the mark position (in chars) */
+	apc_intg read;			/* the offset to the get a char position (in chars) */
+	apc_intg wrte;			/* the offset to the add chars (in chars) */
 } Position;
 
 /* Buffer structure */
 typedef struct bufferReader {
-	boa_char*	content;			/* pointer to the beginning of character array (character buffer) */
-	boa_intg	size;				/* current dynamic memory size (in bytes) allocated to character buffer */
-	boa_intg	increment;			/* character array increment factor */
-	boa_intg	mode;				/* operational mode indicator */
-	boa_byte	flags;				/* contains character array reallocation flag and end-of-buffer flag */
+	apc_char*	content;			/* pointer to the beginning of character array (character buffer) */
+	apc_intg	size;				/* current dynamic memory size (in bytes) allocated to character buffer */
+	apc_intg	increment;			/* character array increment factor */
+	apc_intg	mode;				/* operational mode indicator */
+	apc_byte	flags;				/* contains character array reallocation flag and end-of-buffer flag */
 	Position	position;			/* Offset / position field */
-	boa_intg	histogram[NCHAR];	/* Statistics of chars */
+	apc_intg	histogram[NCHAR];	/* Statistics of chars */
 } BufferReader, * ReaderPointer;
 
 /* FUNCTIONS DECLARATION:  .................................. */
 /* General Operations */
-ReaderPointer	readerCreate		(boa_intg, boa_intg, boa_intg);
-ReaderPointer	readerAddChar		(ReaderPointer const, boa_char);
-boa_boln		readerClear		    (ReaderPointer const);
-boa_boln		readerFree		    (ReaderPointer const);
-boa_boln		readerIsFull		(ReaderPointer const);
-boa_boln		readerIsEmpty		(ReaderPointer const);
-boa_boln		readerSetMark		(ReaderPointer const, boa_intg);
-boa_intg		readerPrint		    (ReaderPointer const);
-boa_intg		readerLoad			(ReaderPointer const, FILE* const);
-boa_boln		readerRecover		(ReaderPointer const);
-boa_boln		readerRetract		(ReaderPointer const);
-boa_boln		readerRestore		(ReaderPointer const);
+
+/*
+*	Function Name: readerCreate
+*	Purpose: Create a new reader in memory heap.
+*	Parameters: size, increment, mode
+*	Return Value: readerPointer
+*	Algorithm:
+*/
+ReaderPointer	readerCreate		(apc_intg, apc_intg, apc_intg);
+/*
+*	Function Name: readerAddChar
+*	Purpose: To add a char to the reader.
+*	Parameters: readerPointer, ch
+*	Return Value: readerPointer
+*	Algorithm:
+*/
+ReaderPointer	readerAddChar		(ReaderPointer const, apc_char);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_boln		readerClear		    (ReaderPointer const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_boln		readerFree		    (ReaderPointer const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_boln		readerIsFull		(ReaderPointer const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_boln		readerIsEmpty		(ReaderPointer const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_boln		readerSetMark		(ReaderPointer const, apc_intg);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_intg		readerPrint		    (ReaderPointer const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_intg		readerLoad			(ReaderPointer const, FILE* const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_boln		readerRecover		(ReaderPointer const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_boln		readerRetract		(ReaderPointer const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_boln		readerRestore		(ReaderPointer const);
+
 /* Getters */
-boa_char		readerGetChar		(ReaderPointer const);
-boa_char*		readerGetContent	(ReaderPointer const, boa_intg);
-boa_intg		readerGetPosRead	(ReaderPointer const);
-boa_intg		readerGetPosWrte	(ReaderPointer const);
-boa_intg		readerGetPosMark	(ReaderPointer const);
-boa_intg		readerGetSize		(ReaderPointer const);
-boa_intg		readerGetInc		(ReaderPointer const);
-boa_intg		readerGetMode		(ReaderPointer const);
-boa_byte		readerGetFlags		(ReaderPointer const);
-boa_intg		readerShowStat		(ReaderPointer const);
+apc_char		readerGetChar		(ReaderPointer const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_char*		readerGetContent	(ReaderPointer const, apc_intg);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_intg		readerGetPosRead	(ReaderPointer const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_intg		readerGetPosWrte	(ReaderPointer const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_intg		readerGetPosMark	(ReaderPointer const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_intg		readerGetInc		(ReaderPointer const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_intg		readerGetMode		(ReaderPointer const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_byte		readerGetFlags		(ReaderPointer const);
+/*
+*	Function Name:
+*	Purpose:
+*	Parameters:
+*	Return Value:
+*	Algorithm:
+*/
+apc_intg		readerShowStat		(ReaderPointer const);
 
 #endif

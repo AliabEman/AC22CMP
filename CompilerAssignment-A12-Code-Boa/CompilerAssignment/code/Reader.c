@@ -4,17 +4,22 @@
 * Code version: Fall, 2022
 * Author: Svillen Ranev - Paulo Sousa
 * Professors: Paulo Sousa
+* Student: Aliab Eman
+* Student Number: 041-000-420
 ************************************************************
  _________________________________
 |                                 |
-| ........ BOA LANGUAGE ......... |
-|     __    __    __    __        |
-|    /  \  /  \  /  \  /  \       |
-| __/  __\/  __\/  __\/  __\__    |
-| _/  /__/  /__/  /__/  /_____|   |
-|  \_/ \   / \   / \   / \  \___  |
-|       \_/   \_/   \_/   \___o_> |
-|                                 |
+| ....... 'APOUC' LANGUAGE ...... |
+|///// /\\------\\\\\\\\\\\\\\\\\\|
+|//// // \\  \_\ \\\\\\\\\\\\\\\  |
+|/// //___\\   __/\\\\\           |
+|// //     \\__\\\\\\\            |
+|\\\\\  *  / // /\\\\             |
+|\\\\\\___/ // /\\\\\             |
+|\\\\\\\\/ // /\\\\\\             |
+|///////\\ \\ \\\\\\\\            |
+|///////\\\ \\ \\\\\\\\\\\\\\\\\  |
+|//////\\\\\    \\\\\\\\\\\\\\\\\\|
 | .. ALGONQUIN COLLEGE - 2022F .. |
 |_________________________________|
 
@@ -71,24 +76,37 @@
 *************************************************************
 */
 
-ReaderPointer readerCreate(boa_intg size, boa_intg increment, boa_intg mode) {
+
+ReaderPointer readerCreate(apc_intg size, apc_intg increment, apc_intg mode) {
 	ReaderPointer readerPointer;
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Adjust the values according to parameters */
-	size = READER_DEFAULT_SIZE;
-	increment = READER_DEFAULT_INCREMENT;
-	mode = MODE_FIXED;
-	readerPointer = (ReaderPointer)calloc(1, sizeof(BufferReader));
-	/* TO_DO: Defensive programming */
-	readerPointer->content = (boa_char*)malloc(size);
-	/* TO_DO: Defensive programming */
-	/* TO_DO: Initialize the histogram */
-	readerPointer->size = size;
-	readerPointer->increment = increment;
-	readerPointer->mode = mode;
-	/* TO_DO: Initialize flags */
-	/* TO_DO: The created flag must be signalized as EMP */
-	return readerPointer;
+	if (size == NULL) {
+		size = READER_DEFAULT_SIZE;	
+		increment = READER_DEFAULT_INCREMENT;
+	}
+	else if (increment == NULL) {
+		mode = MODE_FIXED;
+	}
+	else if (mode != MODE_ADDIT || MODE_MULTI || MODE_FIXED) {
+		return NULL;
+	}
+	else {
+		readerPointer = (ReaderPointer)calloc(1, sizeof(BufferReader));
+		/* TO_DO: Defensive programming */
+		readerPointer->content = (apc_char*)malloc(size); 
+		/* TO_DO: Defensive programming */
+		/* TO_DO: Initialize the histogram */
+		readerPointer->histogram[0] = readerPointer->content;
+		readerPointer->size = size;
+		readerPointer->increment = increment;
+		readerPointer->mode = mode;
+		/* TO_DO: Initialize flags */
+		/* TO_DO: The created flag must be signalized as EMP */
+		readerPointer->flags = READER_EMP;
+		return readerPointer;
+	}
+	
 }
 
 
@@ -108,14 +126,16 @@ ReaderPointer readerCreate(boa_intg size, boa_intg increment, boa_intg mode) {
 *************************************************************
 */
 
-ReaderPointer readerAddChar(ReaderPointer const readerPointer, boa_char ch) {
-	boa_char* tempReader = NULL;
-	boa_intg newSize = 0;
+ReaderPointer readerAddChar(ReaderPointer const readerPointer, apc_char ch) {
+	apc_char* tempReader = NULL;
+	apc_intg newSize = 0;
 	/* TO_DO: Defensive programming */
-	/* TO_DO: Reset Realocation */
+	/* TO_DO: Reset Reallocation */
 	/* TO_DO: Test the inclusion of chars */
-	if (readerPointer->position.wrte * (boa_intg)sizeof(boa_char) < readerPointer->size) {
+	if (readerPointer->position.wrte * (apc_intg)sizeof(apc_char) < readerPointer->size) { //"if the reader is not full..."
 		/* TO_DO: This buffer is NOT full */
+		readerPointer->position.wrte = readerPointer->position.wrte + READER_DEFAULT_INCREMENT;
+		return readerPointer;
 	} else {
 		/* TO_DO: Reset Full flag */
 		switch (readerPointer->mode) {
@@ -123,16 +143,24 @@ ReaderPointer readerAddChar(ReaderPointer const readerPointer, boa_char ch) {
 			return NULL;
 		case MODE_ADDIT:
 			/* TO_DO: Adjust new size */
+			tempReader = readerPointer->size + READER_DEFAULT_INCREMENT;
 			/* TO_DO: Defensive programming */
+			if (tempReader > READER_MAX_SIZE || tempReader < 0)
+				tempReader = NULL;
 			break;
 		case MODE_MULTI:
 			/* TO_DO: Adjust new size */
+			tempReader = readerPointer->size * readerPointer->position.wrte + READER_DEFAULT_INCREMENT;
 			/* TO_DO: Defensive programming */
+			if (tempReader > READER_MAX_SIZE || tempReader < 0)
+				tempReader = NULL;
 			break;
 		default:
 			return NULL;
 		}
 		/* TO_DO: New reader allocation */
+		tempReader = realloc(readerPointer->content, READER_DEFAULT_INCREMENT);
+		readerPointer->size = tempReader;
 		/* TO_DO: Defensive programming */
 		/* TO_DO: Check Relocation */
 	}
@@ -156,10 +184,11 @@ ReaderPointer readerAddChar(ReaderPointer const readerPointer, boa_char ch) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_boln readerClear(ReaderPointer const readerPointer) {
+apc_boln readerClear(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Adjust flags original */
-	return BOA_TRUE;
+	readerPointer->flags = READER_DEFAULT_FLAG;
+	return APC_TRUE;
 }
 
 /*
@@ -176,12 +205,13 @@ boa_boln readerClear(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_boln readerFree(ReaderPointer const readerPointer) {
+apc_boln readerFree(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	if (!readerPointer)
-		return BOA_FALSE;
+		return APC_FALSE;
 	/* TO_DO: Free pointers */
-	return BOA_TRUE;
+	free(readerPointer);
+	return APC_TRUE;
 }
 
 /*
@@ -198,10 +228,10 @@ boa_boln readerFree(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_boln readerIsFull(ReaderPointer const readerPointer) {
+apc_boln readerIsFull(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Check flag if buffer is FUL */
-	return BOA_FALSE;
+	return APC_FALSE;
 }
 
 
@@ -219,10 +249,10 @@ boa_boln readerIsFull(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_boln readerIsEmpty(ReaderPointer const readerPointer) {
+apc_boln readerIsEmpty(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Check flag if buffer is EMP */
-	return BOA_FALSE;
+	return APC_FALSE;
 }
 
 /*
@@ -240,13 +270,13 @@ boa_boln readerIsEmpty(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_boln readerSetMark(ReaderPointer const readerPointer, boa_intg mark) {
+apc_boln readerSetMark(ReaderPointer const readerPointer, apc_intg mark) {
 	/* TO_DO: Defensive programming */
 	if (!readerPointer || mark<0 || mark > readerPointer->position.wrte)
-		return BOA_FALSE;
+		return APC_FALSE;
 	/* TO_DO: Adjust mark */
 	readerPointer->position.mark = mark;
-	return BOA_TRUE;
+	return APC_TRUE;
 }
 
 
@@ -264,9 +294,9 @@ boa_boln readerSetMark(ReaderPointer const readerPointer, boa_intg mark) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_intg readerPrint(ReaderPointer const readerPointer) {
-	boa_intg cont = 0;
-	boa_char c;
+apc_intg readerPrint(ReaderPointer const readerPointer) {
+	apc_intg cont = 0;
+	apc_char c;
 	/* TO_DO: Defensive programming (including invalid chars) */
 	c = readerGetChar(readerPointer);
 	/* TO_DO: Check flag if buffer EOB has achieved */
@@ -294,11 +324,11 @@ boa_intg readerPrint(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_intg readerLoad(ReaderPointer const readerPointer, FILE* const fileDescriptor) {
-	boa_intg size = 0;
-	boa_char c;
+apc_intg readerLoad(ReaderPointer const readerPointer, FILE* const fileDescriptor) {
+	apc_intg size = 0;
+	apc_char c;
 	/* TO_DO: Defensive programming */
-	c = (boa_char)fgetc(fileDescriptor);
+	c = (apc_char)fgetc(fileDescriptor);
 	while (!feof(fileDescriptor)) {
 		if (!readerAddChar(readerPointer, c)) {
 			ungetc(c, fileDescriptor);
@@ -326,10 +356,10 @@ boa_intg readerLoad(ReaderPointer const readerPointer, FILE* const fileDescripto
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_boln readerRecover(ReaderPointer const readerPointer) {
+apc_boln readerRecover(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Recover positions */
-	return BOA_TRUE;
+	return APC_TRUE;
 }
 
 
@@ -347,10 +377,10 @@ boa_boln readerRecover(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_boln readerRetract(ReaderPointer const readerPointer) {
+apc_boln readerRetract(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Retract (return 1 pos read) */
-	return BOA_TRUE;
+	return APC_TRUE;
 }
 
 
@@ -368,10 +398,10 @@ boa_boln readerRetract(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_boln readerRestore(ReaderPointer const readerPointer) {
+apc_boln readerRestore(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Restore positions (read/mark) */
-	return BOA_TRUE;
+	return APC_TRUE;
 }
 
 
@@ -390,7 +420,7 @@ boa_boln readerRestore(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_char readerGetChar(ReaderPointer const readerPointer) {
+apc_char readerGetChar(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Check condition to read/wrte */
 	/* TO_DO: Set EOB flag */
@@ -414,7 +444,7 @@ boa_char readerGetChar(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_char* readerGetContent(ReaderPointer const readerPointer, boa_intg pos) {
+apc_char* readerGetContent(ReaderPointer const readerPointer, apc_intg pos) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Return content (string) */
 	return NULL;
@@ -436,7 +466,7 @@ boa_char* readerGetContent(ReaderPointer const readerPointer, boa_intg pos) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_intg readerGetPosRead(ReaderPointer const readerPointer) {
+apc_intg readerGetPosRead(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Return read */
 	return 0;
@@ -457,7 +487,7 @@ boa_intg readerGetPosRead(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_intg readerGetPosWrte(ReaderPointer const readerPointer) {
+apc_intg readerGetPosWrte(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Return wrte */
 	return 0;
@@ -478,7 +508,7 @@ boa_intg readerGetPosWrte(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_intg readerGetPosMark(ReaderPointer const readerPointer) {
+apc_intg readerGetPosMark(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Return mark */
 	return 0;
@@ -499,7 +529,7 @@ boa_intg readerGetPosMark(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_intg readerGetSize(ReaderPointer const readerPointer) {
+apc_intg readerGetSize(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Return size */
 	return 0;
@@ -519,7 +549,7 @@ boa_intg readerGetSize(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_intg readerGetInc(ReaderPointer const readerPointer) {
+apc_intg readerGetInc(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Return increment */
 	return 0;
@@ -539,7 +569,7 @@ boa_intg readerGetInc(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_intg readerGetMode(ReaderPointer const readerPointer) {
+apc_intg readerGetMode(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Return mode */
 	return 0;
@@ -560,10 +590,22 @@ boa_intg readerGetMode(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_byte readerGetFlags(ReaderPointer const readerPointer) {
+apc_byte readerGetFlags(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Return flags */
-	return 0;
+	switch (readerPointer->flags) {
+	case(READER_DEFAULT_FLAG):
+		return READER_DEFAULT_FLAG;
+	case(READER_FUL):
+		return READER_FUL;
+	case(READER_EMP):
+		return READER_EMP;	
+	case(READER_REL):
+		return READER_REL;
+	case(READER_END):
+		return READER_END;
+	default:
+		return NULL;
 }
 
 
@@ -581,7 +623,7 @@ boa_byte readerGetFlags(ReaderPointer const readerPointer) {
 *	- Adjust for your LANGUAGE.
 *************************************************************
 */
-boa_intg readerShowStat(ReaderPointer const readerPointer) {
+apc_intg readerShowStat(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Updates the histogram */
 	return 0;

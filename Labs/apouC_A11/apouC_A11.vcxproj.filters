@@ -14,4 +14,26 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\CompilerAssignment-A12-Code-Boa\CompilerAssignment\code\Compilers.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\CompilerAssignment-A12-Code-Boa\CompilerAssignment\code\MainReader.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\CompilerAssignment-A12-Code-Boa\CompilerAssignment\code\Reader.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\CompilerAssignment-A12-Code-Boa\CompilerAssignment\code\Compilers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CompilerAssignment-A12-Code-Boa\CompilerAssignment\code\Reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\CompilerAssignment-A12-Code-Boa\CompilerAssignment\code\CMakeLists.txt" />
+  </ItemGroup>
 </Project>

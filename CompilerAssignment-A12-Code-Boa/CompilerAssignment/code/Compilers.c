@@ -4,17 +4,22 @@
 * Code version: Fall, 2022
 * Author: Svillen Ranev - Paulo Sousa
 * Professors: Paulo Sousa
+* Student: Aliab Eman
+* Student Number: 041-000-420
 ************************************************************
- _________________________________
+ _________________________________  
 |                                 |
-| ........ BOA LANGUAGE ......... |
-|     __    __    __    __        |
-|    /  \  /  \  /  \  /  \       |
-| __/  __\/  __\/  __\/  __\__    |
-| _/  /__/  /__/  /__/  /_____|   |
-|  \_/ \   / \   / \   / \  \___  |
-|       \_/   \_/   \_/   \___o_> |
-|                                 |
+| ....... 'APOUC' LANGUAGE ...... |
+|///// /\\------\\\\\\\\\\\\\\\\\\|
+|//// // \\  \_\ \\\\\\\\\\\\\\\  |
+|/// //___\\   __/\\\\\           |
+|// //     \\__\\\\\\\            |
+|\\\\\  *  / // /\\\\             |
+|\\\\\\___/ // /\\\\\             |
+|\\\\\\\\/ // /\\\\\\             |
+|///////\\ \\ \\\\\\\\            |
+|///////\\\ \\ \\\\\\\\\\\\\\\\\  |
+|//////\\\\\    \\\\\\\\\\\\\\\\\\|
 | .. ALGONQUIN COLLEGE - 2022F .. |
 |_________________________________|
 
@@ -63,8 +68,8 @@
 *************************************************************
 */
 
-boa_intg main(int argc, char** argv) {
-	boa_intg i;
+apc_intg main(int argc, char** argv) {
+	apc_intg i;
 	printLogo();
 	if (DEBUG) {
 		for (i = 0; i < argc; ++i)
@@ -77,22 +82,22 @@ boa_intg main(int argc, char** argv) {
 			PGM_PARSER, "] - Parser\n");
 		return EXIT_FAILURE;
 	}
-	boa_char option = argv[1][0];
-	switch (option) {
+	apc_char option = argv[1][0];
+	switch (option) { //comment the code to use the specified compiler component
 	case PGM_READER:
 		printf("%s%c%s", "\n[Option '", PGM_READER, "': Starting READER .....]\n\n");
 		mainReader(argc, argv);
 		break;
-	/*
-	case PGM_SCANNER:
-		printf("%s%c%s", "\n[Option '", PGM_SCANNER, "': Starting SCANNER ....]\n\n");
-		mainScanner(argc, argv);
-		break;
-	case PGM_PARSER:
-		printf("%s%c%s", "\n[Option '", PGM_PARSER, "': Starting PARSER .....]\n\n");
-		mainParser(argc, argv);
-		break;
-	*/
+	
+//	case PGM_SCANNER:
+//		printf("%s%c%s", "\n[Option '", PGM_SCANNER, "': Starting SCANNER ....]\n\n");
+//		mainScanner(argc, argv);
+//		break;
+//	case PGM_PARSER:
+//		printf("%s%c%s", "\n[Option '", PGM_PARSER, "': Starting PARSER .....]\n\n");
+//		mainParser(argc, argv);
+//		break;
+
 	default:
 		printf("%s%c%s%c%s%c%s", "* OPTIONS:\n- [",
 			PGM_READER, "] - Reader\n- [",
@@ -115,22 +120,25 @@ boa_intg main(int argc, char** argv) {
 * Algorithm: -
 *************************************************************
 */
-boa_void printLogo() {
+apc_void printLogo() {
 	/*
-	boa_char* strLogo = " _________________________________\n|                                 |\n| ........ BOA LANGUAGE ......... |\n|     __    __    __    __        |\n|    /  \\  /  \\  /  \\  /  \\       |\n| __/  __\\/  __\\/  __\\/  __\\__    |\n| _/  /__/  /__/  /__/  /_____|   |\n|  \\_/ \\   / \\   / \\   / \\  \\___  |\n|       \\_/   \\_/   \\_/   \\___o_> |\n|                                 |\n| .. ALGONQUIN COLLEGE - 2022F .. |\n|_________________________________|\n";
+	boa_char* strLogo = " _________________________________\n|                                 |\n| ........ APOUC LANGUAGE ......... |\n|     __    __    __    __        |\n|    /  \\  /  \\  /  \\  /  \\       |\n| __/  __\\/  __\\/  __\\/  __\\__    |\n| _/  /__/  /__/  /__/  /_____|   |\n|  \\_/ \\   / \\   / \\   / \\  \\___  |\n|       \\_/   \\_/   \\_/   \\___o_> |\n|                                 |\n| .. ALGONQUIN COLLEGE - 2022F .. |\n|_________________________________|\n";
 	printf("%s", strLogo);
 	*/
-	printf("%s%s%s%s%s%s%s%s%s%s%s%s",
+	printf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		" _________________________________ \n",
 		"|                                 |\n",
-		"| ....... 'BOA' LANGUAGE ........ |\n",
-		"|     __    __    __    __        |\n",
-		"|    /  \\  /  \\  /  \\  /  \\       |\n",
-		"| __/  __\\/  __\\/  __\\/  __\\__    |\n",
-		"| _/  /__/  /__/  /__/  /_____|   |\n",
-		"|  \\_/ \\   / \\   / \\   / \\  \\___  |\n",
-		"|       \\_/   \\_/   \\_/   \\___o_> |\n",
-		"|                                 |\n",
+		"| ....... 'APOUC' LANGUAGE ...... |\n",
+		"|///// /\\------\\\\\\\\\\\\\\\\\\|\n",
+		"|//// // \\  \_\ \\\\\\\\\\\\\\\  |\n",
+		"|/// //___\\   __/\\\\\           |\n",
+		"|// //     \\__\\\\\\\            |\n",
+		"|\\\\\  *  / // /\\\\             |\n",
+		"|\\\\\\___/ // /\\\\\             |\n",
+		"|\\\\\\\\/ // /\\\\\\             |\n",
+		"|///////\\ \\ \\\\\\\\            |\n",
+		"|///////\\\ \\ \\\\\\\\\\\\\\\\\  |\n",
+		"|//////\\\\\    \\\\\\\\\\\\\\\\\\|\n",
 		"| .. ALGONQUIN COLLEGE - 2022F .. |\n",
 		"|_________________________________|\n"
 	);
