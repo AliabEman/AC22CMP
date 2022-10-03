@@ -321,6 +321,7 @@ apc_boln readerSetMark(ReaderPointer const readerPointer, apc_intg mark) {
 }
 
 
+
 /*
 ***********************************************************
 * Function name: readerPrint
@@ -339,13 +340,22 @@ apc_intg readerPrint(ReaderPointer const readerPointer) {
 	apc_intg cont = 0;
 	apc_char c;
 	/* TO_DO: Defensive programming (including invalid chars) */
-	
 	c = readerGetChar(readerPointer);
 	/* TO_DO: Check flag if buffer EOB has achieved */
 	while (cont < readerPointer->position.wrte) {
+		if (c > NCHAR || c < 0) {
+			printf("Invalid Character at position: %d", cont);
+			cont++;
+		}
+		else if (c == READER_TERMINATOR) {
+			readerPointer->flags = READER_END;
+			return cont;
+		}
+		else {
 		cont++;
-		printf("%c", c);
+		printf("%c", c);		
 		c = readerGetChar(readerPointer);
+		}
 	}
 	return cont;
 }
@@ -367,16 +377,17 @@ apc_intg readerPrint(ReaderPointer const readerPointer) {
 *************************************************************
 */
 apc_intg readerLoad(ReaderPointer const readerPointer, FILE* const fileDescriptor) {
-	apc_intg size = 0;
-	apc_char c;
+	apc_intg size = 0; //size of file (amount of chars)
+	apc_char c; //value of char.
 	/* TO_DO: Defensive programming */
-	c = (apc_char)fgetc(fileDescriptor);
-	while (!feof(fileDescriptor)) {
-		if (!readerAddChar(readerPointer, c)) {
-			ungetc(c, fileDescriptor);
-			return READER_ERROR;
+	c = (apc_char)fgetc(fileDescriptor); //store the file in c
+	while (!feof(fileDescriptor)) { //while not in the end of file, loops from beginning of file until the end
+		if (!readerAddChar(readerPointer, c)) { //if you can't add any more characters
+			ungetc(c, fileDescriptor); //remove char at fileDescriptor pointer
+			return READER_ERROR; //return reader error
 		}
-		c = (char)fgetc(fileDescriptor);
+		if (fileDescriptor)
+		c = (apc_char)fgetc(fileDescriptor); //c is a character in the file input
 		size++;
 	}
 	/* TO_DO: Defensive programming */
@@ -400,8 +411,9 @@ apc_intg readerLoad(ReaderPointer const readerPointer, FILE* const fileDescripto
 */
 apc_boln readerRecover(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
-	
 	/* TO_DO: Recover positions */
+	readerPointer->mode.read = 0; //AE
+	readerPointer->mode.mark = 0; //AE
 	return APC_TRUE;
 }
 
@@ -423,7 +435,14 @@ apc_boln readerRecover(ReaderPointer const readerPointer) {
 apc_boln readerRetract(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Retract (return 1 pos read) */
+	if (readerPointer->position.read < 0) {
+		printf("Cannot retract... reader position would go EOB");
+		return APC_FALSE;
+	}
+	else {
+		readerPointer->position.read -= READER_DEFAULT_INCREMENT;
 	return APC_TRUE;
+	}
 }
 
 
