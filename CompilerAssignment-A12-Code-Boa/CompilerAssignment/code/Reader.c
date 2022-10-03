@@ -1,4 +1,4 @@
-/*hello world
+/*
 ************************************************************
 * COMPILERS COURSE - Algonquin College
 * Code version: Fall, 2022
@@ -29,7 +29,7 @@
 ***********************************************************
 * File name: Reader.c
 * Compiler: MS Visual Studio 2022
-* Course: CST 8152 â€“ Compilers, Lab Section: [011, 012, 013]
+* Course: CST 8152 – Compilers, Lab Section: [011, 012, 013]
 * Assignment: A12.
 * Date: Sep 01 2022
 * Professor: Paulo Sousa
