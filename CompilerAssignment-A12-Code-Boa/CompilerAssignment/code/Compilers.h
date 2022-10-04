@@ -4,17 +4,22 @@
 * Code version: Fall, 2022
 * Author: Svillen Ranev - Paulo Sousa
 * Professors: Paulo Sousa
+* Student: Aliab Eman / Matt Vecchio
+* Student Number: 041-000-420 / 041-004-137
 ************************************************************
  _________________________________
 |                                 |
-| ........ BOA LANGUAGE ......... |
-|     __    __    __    __        |
-|    /  \  /  \  /  \  /  \       |
-| __/  __\/  __\/  __\/  __\__    |
-| _/  /__/  /__/  /__/  /_____|   |
-|  \_/ \   / \   / \   / \  \___  |
-|       \_/   \_/   \_/   \___o_> |
-|                                 |
+| ....... 'APOUC' LANGUAGE ...... |
+|///// /\\------\\\\\\\\\\\\\\\\\\|
+|//// // \\  \_\ \\\\\\\\\\\\\\\  |
+|/// //___\\   __/\\\\\           |
+|// //     \\__\\\\\\\            |
+|\\\\\  *  / // /\\\\             |
+|\\\\\\___/ // /\\\\\             |
+|\\\\\\\\/ // /\\\\\\             |
+|///////\\ \\ \\\\\\\\            |
+|///////\\\ \\ \\\\\\\\\\\\\\\\\  |
+|//////\\\\\    \\\\\\\\\\\\\\\\\\|
 | .. ALGONQUIN COLLEGE - 2022F .. |
 |_________________________________|
 
@@ -24,7 +29,7 @@
 ************************************************************
 * File name: compilers.h
 * Compiler: MS Visual Studio 2022
-* Course: CST 8152 – Compilers, Lab Section: [011, 012, 013]
+* Course: CST 8152 â€“ Compilers, Lab Section: [011, 012, 013]
 * Assignment: A12, A22, A32.
 * Date: Sep 01 2022
 * Professor: Paulo Sousa
@@ -48,8 +53,8 @@
  */
  
 /* Logical constants - adapt for your language */
-#define BOA_TRUE  1
-#define BOA_FALSE 0
+#define APC_TRUE  1
+#define APC_FALSE 0
 
 /*
 ------------------------------------------------------------
@@ -59,16 +64,24 @@ NOTE: Some types may not be directly used by your language,
 ------------------------------------------------------------
 */
 /* TO_DO: Define your typedefs */
-typedef char			boa_char;
-typedef int				boa_intg;
-typedef float			boa_real;
-typedef void			boa_void;
-
-typedef unsigned char	boa_boln;
-typedef unsigned char	boa_byte;
-
-typedef long			boa_long;
-typedef double			boa_doub;
+//my user defined datatype for characters in the ApouC language
+typedef char			apc_char;
+//my user defined datatype for any integers in the ApouC language
+typedef int				apc_intg;
+//my user defined datatype for any floating point numbers in the ApouC language
+typedef float			apc_real;
+//my user defined datatype for any void in the ApouC language
+typedef void			apc_void;
+//my user defined datatype for any boolean values (0,1) in the ApouC language
+typedef unsigned char	apc_boln;
+//my user defined datatype for any byte in the ApouC language
+typedef unsigned char	apc_byte;
+//my user defined datatype for any long integers in the ApouC language
+typedef long			apc_long;
+//my user defined datatype for any doubles in the ApouC language
+typedef double			apc_doub;
+//my user defined datatype for any short integers in the ApouC language
+typedef short			apc_short;
 
 /*
 ------------------------------------------------------------
@@ -90,11 +103,20 @@ Main functions signatures
 (Code will be updated during next assignments)
 ------------------------------------------------------------
 */
-boa_intg mainReader  (boa_intg argc, boa_char** argv);
+
 /*
-boa_intg mainScanner (boa_intg argc, boa_char** argv);
-boa_intg mainParser  (boa_intg argc, boa_char** argv);
+*	Function Name: mainReader
+*	Purpose: 
+*	Parameters: argc, argv
+*	Return Value: apc_intg 
+*	Algorithm:
 */
-boa_void printLogo();
+apc_intg mainReader  (apc_intg argc, apc_char** argv);
+/*
+apc_intg mainScanner (apc_intg argc, apc_char** argv);
+apc_intg mainParser  (apc_intg argc, apc_char** argv);
+*/
+apc_void printLogo();
 
 #endif
+
