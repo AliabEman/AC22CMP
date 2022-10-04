@@ -4,8 +4,8 @@
 * Code version: Fall, 2022
 * Author: Svillen Ranev - Paulo Sousa
 * Professors: Paulo Sousa
-* Student: Aliab Eman
-* Student Number: 041-000-420
+* Student: Aliab Eman & Matthew Vecchio 
+* Student Number: 041-000-420 & 041004137
 ************************************************************
  _________________________________
 |                                 |
@@ -29,7 +29,7 @@
 ***********************************************************
 * File name: Reader.c
 * Compiler: MS Visual Studio 2022
-* Course: CST 8152 – Compilers, Lab Section: [011, 012, 013]
+* Course: CST 8152 â€“ Compilers, Lab Section: [011, 012, 013]
 * Assignment: A12.
 * Date: Sep 01 2022
 * Professor: Paulo Sousa
@@ -80,6 +80,10 @@
 ReaderPointer readerCreate(apc_intg size, apc_intg increment, apc_intg mode) {
 	ReaderPointer readerPointer;
 	/* TO_DO: Defensive programming */
+	if (size < 0 || increment < 0 || mode < 0) { //mv
+		return NULL;
+	}
+	
 	/* TO_DO: Adjust the values according to parameters */
 	if (size == NULL) {
 		size = READER_DEFAULT_SIZE;	
@@ -94,14 +98,22 @@ ReaderPointer readerCreate(apc_intg size, apc_intg increment, apc_intg mode) {
 	else {
 		readerPointer = (ReaderPointer)calloc(1, sizeof(BufferReader));
 		/* TO_DO: Defensive programming */
+		if (readerPointer == NULL) {//mv
+			return NULL;
+		}
 		readerPointer->content = (apc_char*)malloc(size); 
 		/* TO_DO: Defensive programming */
+		if (readerPointer->content == NULL) {//mv
+			return NULL;
+		}
 		/* TO_DO: Initialize the histogram */
+		
 		readerPointer->histogram[0] = readerPointer->content;
 		readerPointer->size = size;
 		readerPointer->increment = increment;
 		readerPointer->mode = mode;
 		/* TO_DO: Initialize flags */
+		
 		/* TO_DO: The created flag must be signalized as EMP */
 		readerPointer->flags = READER_EMP;
 		return readerPointer;
@@ -130,10 +142,14 @@ ReaderPointer readerAddChar(ReaderPointer const readerPointer, apc_char ch) {
 	apc_char* tempReader = NULL;
 	apc_intg newSize = 0;
 	/* TO_DO: Defensive programming */
-	/* TO_DO: Reset Reallocation */
+	if (readerPointer == NULL) {//mv
+		return NULL;
+	}
+	/* TO_DO: Reset Reallocation *///READER_REL
 	/* TO_DO: Test the inclusion of chars */
 	if (readerPointer->position.wrte * (apc_intg)sizeof(apc_char) < readerPointer->size) { //"if the reader is not full..."
 		/* TO_DO: This buffer is NOT full */
+		
 		readerPointer->position.wrte = readerPointer->position.wrte + READER_DEFAULT_INCREMENT;
 		return readerPointer;
 	} else {
@@ -145,6 +161,9 @@ ReaderPointer readerAddChar(ReaderPointer const readerPointer, apc_char ch) {
 			/* TO_DO: Adjust new size */
 			tempReader = readerPointer->size + READER_DEFAULT_INCREMENT;
 			/* TO_DO: Defensive programming */
+			if (tempReader == NULL) {//mv
+				return NULL;
+			}
 			if (tempReader > READER_MAX_SIZE || tempReader < 0)
 				tempReader = NULL;
 			break;
@@ -152,6 +171,9 @@ ReaderPointer readerAddChar(ReaderPointer const readerPointer, apc_char ch) {
 			/* TO_DO: Adjust new size */
 			tempReader = readerPointer->size * readerPointer->position.wrte + READER_DEFAULT_INCREMENT;
 			/* TO_DO: Defensive programming */
+			if (tempReader == NULL) {//mv
+				return NULL;
+			}
 			if (tempReader > READER_MAX_SIZE || tempReader < 0)
 				tempReader = NULL;
 			break;
@@ -162,11 +184,16 @@ ReaderPointer readerAddChar(ReaderPointer const readerPointer, apc_char ch) {
 		tempReader = realloc(readerPointer->content, READER_DEFAULT_INCREMENT);
 		readerPointer->size = tempReader;
 		/* TO_DO: Defensive programming */
+		if (tempReader == NULL) {//mv
+			return NULL;
+		}
 		/* TO_DO: Check Relocation */
+		
 	}
 	/* TO_DO: Add the char */
 	readerPointer->content[readerPointer->position.wrte++] = ch;
 	/* TO_DO: Updates histogram */
+	
 	return readerPointer;
 }
 
@@ -186,7 +213,11 @@ ReaderPointer readerAddChar(ReaderPointer const readerPointer, apc_char ch) {
 */
 apc_boln readerClear(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
+	if (readerPointer == NULL) {//mv
+		return NULL;
+	}
 	/* TO_DO: Adjust flags original */
+	
 	readerPointer->flags = READER_DEFAULT_FLAG;
 	return APC_TRUE;
 }
@@ -207,6 +238,9 @@ apc_boln readerClear(ReaderPointer const readerPointer) {
 */
 apc_boln readerFree(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
+	if (readerPointer == NULL) {//mv
+		return NULL;
+	}
 	if (!readerPointer)
 		return APC_FALSE;
 	/* TO_DO: Free pointers */
@@ -230,6 +264,9 @@ apc_boln readerFree(ReaderPointer const readerPointer) {
 */
 apc_boln readerIsFull(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
+	if (readerPointer == NULL) {//mv
+		return NULL;
+	}
 	/* TO_DO: Check flag if buffer is FUL */
 	return APC_FALSE;
 }
@@ -251,7 +288,11 @@ apc_boln readerIsFull(ReaderPointer const readerPointer) {
 */
 apc_boln readerIsEmpty(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
+	if (readerPointer == NULL) {//mv
+		return NULL;
+	}
 	/* TO_DO: Check flag if buffer is EMP */
+	
 	return APC_FALSE;
 }
 
@@ -280,6 +321,7 @@ apc_boln readerSetMark(ReaderPointer const readerPointer, apc_intg mark) {
 }
 
 
+
 /*
 ***********************************************************
 * Function name: readerPrint
@@ -301,9 +343,19 @@ apc_intg readerPrint(ReaderPointer const readerPointer) {
 	c = readerGetChar(readerPointer);
 	/* TO_DO: Check flag if buffer EOB has achieved */
 	while (cont < readerPointer->position.wrte) {
+		if (c > NCHAR || c < 0) {
+			printf("Invalid Character at position: %d", cont);
+			cont++;
+		}
+		else if (c == READER_TERMINATOR) {
+			readerPointer->flags = READER_END;
+			return cont;
+		}
+		else {
 		cont++;
-		printf("%c", c);
+		printf("%c", c);		
 		c = readerGetChar(readerPointer);
+		}
 	}
 	return cont;
 }
@@ -325,16 +377,17 @@ apc_intg readerPrint(ReaderPointer const readerPointer) {
 *************************************************************
 */
 apc_intg readerLoad(ReaderPointer const readerPointer, FILE* const fileDescriptor) {
-	apc_intg size = 0;
-	apc_char c;
+	apc_intg size = 0; //size of file (amount of chars)
+	apc_char c; //value of char.
 	/* TO_DO: Defensive programming */
-	c = (apc_char)fgetc(fileDescriptor);
-	while (!feof(fileDescriptor)) {
-		if (!readerAddChar(readerPointer, c)) {
-			ungetc(c, fileDescriptor);
-			return READER_ERROR;
+	c = (apc_char)fgetc(fileDescriptor); //store the file in c
+	while (!feof(fileDescriptor)) { //while not in the end of file, loops from beginning of file until the end
+		if (!readerAddChar(readerPointer, c)) { //if you can't add any more characters
+			ungetc(c, fileDescriptor); //remove char at fileDescriptor pointer
+			return READER_ERROR; //return reader error
 		}
-		c = (char)fgetc(fileDescriptor);
+		if (fileDescriptor)
+		c = (apc_char)fgetc(fileDescriptor); //c is a character in the file input
 		size++;
 	}
 	/* TO_DO: Defensive programming */
@@ -359,6 +412,8 @@ apc_intg readerLoad(ReaderPointer const readerPointer, FILE* const fileDescripto
 apc_boln readerRecover(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Recover positions */
+	readerPointer->mode.read = 0; //AE
+	readerPointer->mode.mark = 0; //AE
 	return APC_TRUE;
 }
 
@@ -380,7 +435,14 @@ apc_boln readerRecover(ReaderPointer const readerPointer) {
 apc_boln readerRetract(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Retract (return 1 pos read) */
+	if (readerPointer->position.read < 0) {
+		printf("Cannot retract... reader position would go EOB");
+		return APC_FALSE;
+	}
+	else {
+		readerPointer->position.read -= READER_DEFAULT_INCREMENT;
 	return APC_TRUE;
+	}
 }
 
 
