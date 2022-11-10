@@ -2,7 +2,7 @@
 :: SCRIPT A12 - CST8152 - Fall 2022
 
 CLS
-SET COMPILER=Boa.exe
+SET COMPILER=C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\x64\ApouC.exe
 
 SET FILE1=INPUT0_Empty
 SET FILE2=INPUT1_Hello

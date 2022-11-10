@@ -4,8 +4,8 @@
 * Code version: Fall, 2022
 * Author: Svillen Ranev - Paulo Sousa
 * Professors: Paulo Sousa
-* Student: Aliab Eman
-* Student Number: 041-000-420
+* Student: Aliab Eman, Matthew Vecchio
+* Student Number: 041-000-420, 041-004-137
 ************************************************************
  _________________________________
 |                                 |
@@ -78,7 +78,7 @@
 
 
 ReaderPointer readerCreate(apc_intg size, apc_intg increment, apc_intg mode) {
-	ReaderPointer readerPointer;
+	ReaderPointer readerPointer;  
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Adjust the values according to parameters */
 	if (size == NULL) {
@@ -87,6 +87,8 @@ ReaderPointer readerCreate(apc_intg size, apc_intg increment, apc_intg mode) {
 	}
 	else if (increment == NULL) {
 		mode = MODE_FIXED;
+		increment = READER_DEFAULT_INCREMENT;
+
 	}
 	else if (mode != MODE_ADDIT && mode != MODE_MULTI && mode != MODE_FIXED) {
 		return NULL;
@@ -98,7 +100,7 @@ ReaderPointer readerCreate(apc_intg size, apc_intg increment, apc_intg mode) {
 	readerPointer->content = (apc_char*)malloc(size); 
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Initialize the histogram */
-	for (int i=0;i<NCHAR;i++)
+	for (apc_intg i=0;i<NCHAR;i++)
 		readerPointer->histogram[i] = 0;
 	readerPointer->size = size;
 	readerPointer->increment = increment;
@@ -554,8 +556,12 @@ apc_intg readerGetPosMark(ReaderPointer const readerPointer) {
 */
 apc_intg readerGetSize(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
+	if (readerPointer->size < 0)
+	readerPointer->size = READER_DEFAULT_SIZE;
+	apc_intg sizeReader;
 	/* TO_DO: Return size */
-	return 0;
+	sizeReader = readerPointer->size;
+	return sizeReader;
 }
 
 /*
@@ -574,8 +580,12 @@ apc_intg readerGetSize(ReaderPointer const readerPointer) {
 */
 apc_intg readerGetInc(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
+	if (readerPointer->increment < 0)
+		readerPointer->increment = READER_DEFAULT_INCREMENT;
 	/* TO_DO: Return increment */
-	return 0;
+	apc_intg bufferIncrement;
+	bufferIncrement = readerPointer->increment;
+	return bufferIncrement;
 }
 
 /*
@@ -595,6 +605,9 @@ apc_intg readerGetInc(ReaderPointer const readerPointer) {
 apc_intg readerGetMode(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Return mode */
+	apc_intg readerMode;
+	readerMode = readerPointer->mode;
+	return readerMode;
 	return 0;
 }
 

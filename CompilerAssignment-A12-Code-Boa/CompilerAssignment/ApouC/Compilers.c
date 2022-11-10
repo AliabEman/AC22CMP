@@ -4,8 +4,8 @@
 * Code version: Fall, 2022
 * Author: Svillen Ranev - Paulo Sousa
 * Professors: Paulo Sousa
-* Student: Aliab Eman
-* Student Number: 041-000-420
+* Student: Aliab Eman, Matthew Vecchio
+* Student Number: 041-000-420, 041-004-137
 ************************************************************
  _________________________________  
 |                                 |
@@ -123,7 +123,7 @@ apc_intg main(int argc, char** argv) {
 */
 apc_void printLogo() {
 	/*
-	boa_char* strLogo = " _________________________________\n|                                 |\n| ........ APOUC LANGUAGE ......... |\n|     __    __    __    __        |\n|    /  \\  /  \\  /  \\  /  \\       |\n| __/  __\\/  __\\/  __\\/  __\\__    |\n| _/  /__/  /__/  /__/  /_____|   |\n|  \\_/ \\   / \\   / \\   / \\  \\___  |\n|       \\_/   \\_/   \\_/   \\___o_> |\n|                                 |\n| .. ALGONQUIN COLLEGE - 2022F .. |\n|_________________________________|\n";
+	apc_char* strLogo = " _________________________________\n|                                 |\n| ........ APOUC LANGUAGE ......... |\n|     __    __    __    __        |\n|    /  \\  /  \\  /  \\  /  \\       |\n| __/  __\\/  __\\/  __\\/  __\\__    |\n| _/  /__/  /__/  /__/  /_____|   |\n|  \\_/ \\   / \\   / \\   / \\  \\___  |\n|       \\_/   \\_/   \\_/   \\___o_> |\n|                                 |\n| .. ALGONQUIN COLLEGE - 2022F .. |\n|_________________________________|\n";
 	printf("%s", strLogo);
 	*/
 	printf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",

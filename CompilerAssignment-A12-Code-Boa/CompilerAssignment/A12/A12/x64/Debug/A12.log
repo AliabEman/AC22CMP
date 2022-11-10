@@ -1,6 +1,0 @@
-﻿  Compilers.c
-  MainReader.c
-C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\code\MainReader.c(187,43): warning C4013: 'readerGetSize' undefined; assuming extern returning int
-  Reader.c
-  Generating Code...
-  A12.vcxproj -> C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\A12\x64\Debug\A12.exe

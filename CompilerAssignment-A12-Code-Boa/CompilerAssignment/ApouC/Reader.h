@@ -4,8 +4,8 @@
 * Code version: Fall, 2022
 * Author: Svillen Ranev - Paulo Sousa
 * Professors: Paulo Sousa
-* Student: Aliab Eman
-* Student Number: 041-000-420
+* Student: Aliab Eman, Matthew Vecchio
+* Student Number: 041-000-420, 041-004-137
 ************************************************************
  _________________________________
 |                                 |
