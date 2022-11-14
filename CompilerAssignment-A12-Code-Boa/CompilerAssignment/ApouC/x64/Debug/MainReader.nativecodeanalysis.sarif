@@ -1,0 +1,51 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.33.31630.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///c:/users/aliab/onedrive/documents/github/ac22cmp/compilerassignment-a12-code-boa/compilerassignment/apouc/mainreader.c"
+          },
+          "roles": [
+            "analysisTarget"
+          ],
+          "hashes": {
+            "sha-256": "38510515ba5cf1f0d1143fb3ed0917b40e68949b1d49c0dce869b46180f4cefa"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/aliab/onedrive/documents/github/ac22cmp/compilerassignment-a12-code-boa/compilerassignment/apouc/compilers.h"
+          },
+          "hashes": {
+            "sha-256": "3256e216e88ae931cac8584ebbf51c8642ee67b7267bad6ea575e42650970ec6"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/aliab/onedrive/documents/github/ac22cmp/compilerassignment-a12-code-boa/compilerassignment/apouc/reader.h"
+          },
+          "hashes": {
+            "sha-256": "788becfd3f29e238bf554ae5fa6b7d3c64628cb0eff98d1f9b57a3c02c90aceb"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,1 +1,5 @@
-﻿  ApouC.vcxproj -> C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\x64\Debug\ApouC.exe
+﻿  MainScanner.c
+C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\MainScanner.c(215,49): warning C4013: 'readerGetSize' undefined; assuming extern returning int
+  Scanner.c
+  Generating Code...
+  ApouC.vcxproj -> C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\x64\Debug\ApouC.exe
