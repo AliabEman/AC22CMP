@@ -167,7 +167,7 @@ apc_void startReader(apc_char* program, apc_char* input, apc_char mode, apc_intg
 	apc_char symbol;			/* symbol read from input file */
 
 	/* Create buffer */
-	bufferp = readerCreate(size, (char)increment, mode);
+	bufferp =  readerCreate(size, (char)increment, mode);
 
 	if (bufferp == NULL) {
 		bErrorPrint("%s%s", program,

@@ -120,7 +120,7 @@ typedef struct bufferReader {
 /* FUNCTIONS DECLARATION:  .................................. */
 /* General Operations */
 
-/*
+ /*
 *	Function Name: readerCreate
 *	Purpose: Create a new reader in memory heap.
 *	Parameters: size, increment, mode

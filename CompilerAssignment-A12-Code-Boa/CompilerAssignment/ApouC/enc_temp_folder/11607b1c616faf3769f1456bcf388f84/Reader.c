@@ -132,16 +132,12 @@ ReaderPointer readerAddChar(ReaderPointer const readerPointer, apc_char ch) {
 	apc_char* tempReader = NULL;
 	apc_intg newSize = 0;
 	/* TO_DO: Defensive programming */
-	if (!readerPointer)
-		return READER_ERROR;
-	if (readerPointer->size > READER_MAX_SIZE) {
-		return READER_FUL;
-	}
 	/* TO_DO: Reset Reallocation */
 	/* TO_DO: Test the inclusion of chars */
 	if (readerPointer->position.wrte * (apc_intg)sizeof(apc_char) < readerPointer->size) { //"if the reader is not full..."
 		/* TO_DO: This buffer is NOT full */
 		readerPointer->position.wrte = readerPointer->position.wrte + readerPointer->increment;
+		return readerPointer;
 	} else {
 		/* TO_DO: Reset Full flag */
 		switch (readerPointer->mode) {

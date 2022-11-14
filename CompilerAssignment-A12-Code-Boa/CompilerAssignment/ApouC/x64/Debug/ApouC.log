@@ -1,9 +1,1 @@
-﻿  Reader.c
-C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\Reader.c(84,18): warning C4047: '==': 'apc_intg' differs in levels of indirection from 'void *'
-C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\Reader.c(88,28): warning C4047: '==': 'apc_intg' differs in levels of indirection from 'void *'
-C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\Reader.c(149,63): warning C4047: '=': 'apc_char *' differs in levels of indirection from 'int'
-C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\Reader.c(151,37): warning C4047: '>': 'apc_char *' differs in levels of indirection from 'int'
-C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\Reader.c(156,94): warning C4047: '=': 'apc_char *' differs in levels of indirection from 'int'
-C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\Reader.c(158,37): warning C4047: '>': 'apc_char *' differs in levels of indirection from 'int'
-C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\Reader.c(166,35): warning C4047: '=': 'apc_intg' differs in levels of indirection from 'apc_char *'
-C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\Reader.c(644,14): warning C4047: 'return': 'apc_byte' differs in levels of indirection from 'void *'
+﻿  ApouC.vcxproj -> C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\x64\Debug\ApouC.exe
