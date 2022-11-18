@@ -54,16 +54,16 @@ enum TOKENS {
 	EOS_T,		/*  8: End of statement (semicolon) */
 	RTE_T,		/*  9: Run-time error token */
 	INL_T,		/* 10: Run-time error token */
-	SEOF_T		/* 11: Source end-of-file token */
+	SEOF_T,		/* 11: Source end-of-file token */
 
-	MNID_T, /* Method Name Identifier Token */
-	KEY_T, /* Keyword Token*/
-	SL_T, /*String Literal */
-	CL_T, /*Character Literal */
-	FPL_T, /*Floating Point Literal */
-	IL_T, /*Integer Literal */
-	MLC_T, /*Multi-Line Comment Token*/
-	SLC /*Single-Line Comment Token*/
+//	MNID_T, /* Method Name Identifier Token */
+	//KEY_T, /* Keyword Token*/
+//	SL_T, /*String Literal */
+//	CL_T, /*Character Literal */
+//	FPL_T, /*Floating Point Literal */
+//	IL_T, /*Integer Literal */
+//	MLC_T, /*Multi-Line Comment Token*/
+//	SLC /*Single-Line Comment Token*/
 
 };
 

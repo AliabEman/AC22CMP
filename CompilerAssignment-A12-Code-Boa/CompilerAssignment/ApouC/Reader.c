@@ -100,7 +100,7 @@ ReaderPointer readerCreate(apc_intg size, apc_intg increment, apc_intg mode) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Initialize the histogram */
 	for (apc_intg i=0;i<NCHAR;i++)
-		readerPointer->histogram[i] = NULL;
+		readerPointer->histogram[i] = 0;
 	readerPointer->size = size;
 	readerPointer->increment = increment;
 	readerPointer->mode = mode;
@@ -141,7 +141,7 @@ ReaderPointer readerAddChar(ReaderPointer const readerPointer, apc_char ch) {
 	/* TO_DO: Test the inclusion of chars */
 	if (readerPointer->position.wrte * (apc_intg)sizeof(apc_char) < readerPointer->size) { //"if the reader is not full..."
 		/* TO_DO: This buffer is NOT full */
-		readerPointer->position.wrte = readerPointer->position.wrte + readerPointer->increment;
+		readerPointer->flags &= ~READER_FUL;
 	} else {
 		/* TO_DO: Reset Full flag */
 		switch (readerPointer->mode) {
@@ -149,30 +149,36 @@ ReaderPointer readerAddChar(ReaderPointer const readerPointer, apc_char ch) {
 			return NULL;
 		case MODE_ADDIT:
 			/* TO_DO: Adjust new size */
-			tempReader = readerPointer->size + READER_DEFAULT_INCREMENT;
+			newSize = readerPointer->size + READER_DEFAULT_INCREMENT;
 			/* TO_DO: Defensive programming */
-			if (tempReader > READER_MAX_SIZE || tempReader < 0)
-				tempReader = NULL;
+			if (newSize > READER_MAX_SIZE || tempReader < 0)
+				return NULL;
 			break;
 		case MODE_MULTI:
 			/* TO_DO: Adjust new size */
-			tempReader = readerPointer->size * readerPointer->position.wrte + READER_DEFAULT_INCREMENT;
+			newSize = readerPointer->size * READER_DEFAULT_INCREMENT;
 			/* TO_DO: Defensive programming */
-			if (tempReader > READER_MAX_SIZE || tempReader < 0)
-				tempReader = NULL;
+			if (newSize > READER_MAX_SIZE || tempReader < 0)
+				return NULL;
 			break;
 		default:
 			return NULL;
 		}
 		/* TO_DO: New reader allocation */
-		tempReader = realloc(readerPointer->content, READER_DEFAULT_INCREMENT);
-		readerPointer->size = tempReader;
-		/* TO_DO: Defensive programming */
+				/* TO_DO: Defensive programming */
 		/* TO_DO: Check Relocation */
+		tempReader = realloc(readerPointer->content, newSize);
+		if (!tempReader)
+			return NULL;
+		readerPointer->size = newSize;
+		readerPointer->content = tempReader;
+
+
 	}
 	/* TO_DO: Add the char */
 	readerPointer->content[readerPointer->position.wrte++] = ch;
 	/* TO_DO: Updates histogram */
+	readerPointer->histogram[ch]++;
 	return readerPointer;
 }
 
@@ -236,7 +242,11 @@ apc_boln readerFree(ReaderPointer const readerPointer) {
 */
 apc_boln readerIsFull(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
+	if (!readerPointer)
+		return READER_ERROR;
 	/* TO_DO: Check flag if buffer is FUL */
+	if (readerPointer->flags == READER_FUL)
+		return APC_TRUE;
 	return APC_FALSE;
 }
 
@@ -257,7 +267,12 @@ apc_boln readerIsFull(ReaderPointer const readerPointer) {
 */
 apc_boln readerIsEmpty(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
+	if (!readerPointer)
+		return READER_ERROR;
 	/* TO_DO: Check flag if buffer is EMP */
+	if (readerPointer->flags == READER_EMP) {
+
+	}
 	return APC_FALSE;
 }
 
@@ -369,6 +384,8 @@ apc_intg readerLoad(ReaderPointer const readerPointer, FILE* const fileDescripto
 */
 apc_boln readerRecover(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
+	if (!readerPointer)
+		return READER_ERROR;
 	/* TO_DO: Recover positions */
 	readerPointer->position.read = 0; //AE
 	readerPointer->position.mark = 0; //AE
@@ -392,6 +409,8 @@ apc_boln readerRecover(ReaderPointer const readerPointer) {
 */
 apc_boln readerRetract(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
+	if (!readerPointer)
+		return APC_FALSE;
 	/* TO_DO: Retract (return 1 pos read) */
 	if (readerPointer->position.read < 0) {
 		printf("Cannot retract... reader position would go EOB");
@@ -420,7 +439,10 @@ apc_boln readerRetract(ReaderPointer const readerPointer) {
 */
 apc_boln readerRestore(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
+	if (!readerPointer)
+		return APC_FALSE;
 	/* TO_DO: Restore positions (read/mark) */
+	readerPointer->position.read = readerPointer->position.mark;
 	return APC_TRUE;
 }
 
@@ -442,10 +464,20 @@ apc_boln readerRestore(ReaderPointer const readerPointer) {
 */
 apc_char readerGetChar(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
+	if (!readerPointer)
+		return READER_ERROR;
 	/* TO_DO: Check condition to read/wrte */
 	/* TO_DO: Set EOB flag */
 	/* TO_DO: Reset EOB flag */
-	return readerPointer->content[readerPointer->position.read++];
+	if (readerPointer->position.read == readerPointer->position.wrte) {
+		readerPointer->flags |= READER_END;
+		return READER_TERMINATOR;
+	}
+	else {
+		readerPointer->flags &= ~READER_END;
+		return readerPointer->content[readerPointer->position.read++];
+	}
+
 }
 
 
@@ -465,14 +497,14 @@ apc_char readerGetChar(ReaderPointer const readerPointer) {
 *************************************************************
 */
 apc_char* readerGetContent(ReaderPointer const readerPointer, apc_intg pos) {
-	apc_char position;
 	/* TO_DO: Defensive programming */
+	if (!readerPointer)
+		return READER_ERROR;
 	if (pos < 0 || pos > readerPointer->position.wrte) {
 		return NULL;
 	}
 	/* TO_DO: Return content (string) */
-	position = readerPointer->content[pos];
-	return position;
+	return readerPointer->content + pos;
 }
 
 
@@ -494,7 +526,7 @@ apc_char* readerGetContent(ReaderPointer const readerPointer, apc_intg pos) {
 apc_intg readerGetPosRead(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Return read */
-	return 0;
+	return readerPointer->position.read;
 }
 
 
@@ -515,8 +547,8 @@ apc_intg readerGetPosRead(ReaderPointer const readerPointer) {
 apc_intg readerGetPosWrte(ReaderPointer const readerPointer) {
 	apc_intg cont;
 /* TO_DO: Defensive programming */
-	if (!readerPointer->position.wrte)
-		return NULL;
+	if (!readerPointer)
+		return READER_ERROR;
 	/* TO_DO: Return wrte */
 	cont = readerPointer->position.wrte;
 	return cont;
@@ -560,7 +592,6 @@ apc_intg readerGetPosMark(ReaderPointer const readerPointer) {
 */
 apc_intg readerGetSize(ReaderPointer const readerPointer) {
 	apc_intg sizeReader = 0;
-
 	/* TO_DO: Defensive programming */
 	if (!readerPointer->size)
 		readerPointer->size = READER_DEFAULT_SIZE;
@@ -585,8 +616,8 @@ apc_intg readerGetSize(ReaderPointer const readerPointer) {
 */
 apc_intg readerGetInc(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
-	if (!readerPointer->increment)
-		readerPointer->increment = READER_DEFAULT_INCREMENT;
+	if (!readerPointer)
+		return READER_ERROR;
 	/* TO_DO: Return increment */
 	apc_intg bufferIncrement;
 	bufferIncrement = readerPointer->increment;
@@ -609,13 +640,12 @@ apc_intg readerGetInc(ReaderPointer const readerPointer) {
 */
 apc_intg readerGetMode(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
-	if (!readerPointer->mode)
-		return NULL;
+	if (!readerPointer)
+		return READER_ERROR;
 	/* TO_DO: Return mode */
 	apc_intg readerMode;
 	readerMode = readerPointer->mode;
 	return readerMode;
-	return 0;
 }
 
 
@@ -635,6 +665,8 @@ apc_intg readerGetMode(ReaderPointer const readerPointer) {
 */
 apc_byte readerGetFlags(ReaderPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
+	if (!readerPointer)
+		return READER_ERROR;
 	/* TO_DO: Return flags */
 	switch (readerPointer->flags) {
 	case(READER_DEFAULT_FLAG):
@@ -672,10 +704,11 @@ apc_intg readerShowStat(ReaderPointer const readerPointer) {
 	apc_intg i = 0;
 	/* TO_DO: Defensive programming */
 	if (!readerPointer)
-		return NULL;
-	/* TO_DO: Updates the histogram */
-	while (!readerPointer->histogram) {
-		count++;
+		return READER_ERROR;
+	/* TO_DO: Return the value of the histogram */
+	while (i < NCHAR) {
+		if (readerPointer->histogram[i] > 0)
+			count++;
 		i++;
 	}
 	return count;

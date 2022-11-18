@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\</FILEPATH>
+      <FILENAME>Reader.c</FILENAME>
+      <LINE>159</LINE>
+      <COLUMN>67</COLUMN>
+    </SFA>
+    <DEFECTCODE>26451</DEFECTCODE>
+    <DESCRIPTION>Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2).</DESCRIPTION>
+    <FUNCTION>readerAddChar</FUNCTION>
+    <DECORATED>readerAddChar</DECORATED>
+    <FUNCLINE>131</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\</FILEPATH>
+      <FILENAME>Reader.c</FILENAME>
+      <LINE>159</LINE>
+      <COLUMN>36</COLUMN>
+    </SFA>
+    <DEFECTCODE>26451</DEFECTCODE>
+    <DESCRIPTION>Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2).</DESCRIPTION>
+    <FUNCTION>readerAddChar</FUNCTION>
+    <DECORATED>readerAddChar</DECORATED>
+    <FUNCLINE>131</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\aliab\OneDrive\Documents\GitHub\AC22CMP\CompilerAssignment-A12-Code-Boa\CompilerAssignment\ApouC\</FILEPATH>
+      <FILENAME>Reader.c</FILENAME>
+      <LINE>152</LINE>
+      <COLUMN>36</COLUMN>
+    </SFA>
+    <DEFECTCODE>26451</DEFECTCODE>
+    <DESCRIPTION>Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2).</DESCRIPTION>
+    <FUNCTION>readerAddChar</FUNCTION>
+    <DECORATED>readerAddChar</DECORATED>
+    <FUNCLINE>131</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

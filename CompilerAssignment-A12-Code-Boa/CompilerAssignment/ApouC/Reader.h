@@ -79,7 +79,7 @@ enum READER_MODE {
 #define READER_MAX_SIZE	INT_MAX-1	/* maximum capacity */ 
 
 #define READER_DEFAULT_SIZE			250		/* default initial buffer reader capacity */
-#define READER_DEFAULT_INCREMENT	10		/* default increment factor */
+#define READER_DEFAULT_INCREMENT	1		/* default increment factor */
 
 /* Add your bit-masks constant definitions here */
 /* BITS                                (7654.3210) */
