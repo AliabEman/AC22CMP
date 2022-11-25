@@ -12,6 +12,8 @@
 * File name: scanner.h
 * Compiler: MS Visual Studio 2022
 * Author: Paulo Sousa
+* Student: Aliab Eman, Matthew Vecchio
+* Student Number: 041-000-420, 041-004-137
 * Course: CST 8152 – Compilers, Lab Section: [011, 012, 013]
 * Assignment: A22, A32.
 * Date: Jul 01 2022
@@ -28,7 +30,7 @@
 
 #ifndef NULL
 #include <_null.h> /* NULL pointer constant is defined there */
-#endif
+#endif 
 
 /*#pragma warning(1:4001) */	/*to enforce C89 type comments  - to make //comments an warning */
 
@@ -43,21 +45,17 @@
 
 /* TO_DO: Define Token codes - Create your token classes */
 enum TOKENS {
+	
+ 
+
 	ERR_T,		/*  0: Error token */
-	MNID_T,		/*  1: Method name identifier token (start: &) */
-	STR_T,		/*  2: String literal token */
-	LPR_T,		/*  3: Left parenthesis token */
-	RPR_T,		/*  4: Right parenthesis token */
-	LBR_T,		/*  5: Left brace token */
-	RBR_T,		/*  6: Right brace token */
-	KW_T,		/*  7: Keyword token */
 	EOS_T,		/*  8: End of statement (semicolon) */
 	RTE_T,		/*  9: Run-time error token */
 	INL_T,		/* 10: Run-time error token */
 	SEOF_T,		/* 11: Source end-of-file token */
 
 //	MNID_T, /* Method Name Identifier Token */
-	//KEY_T, /* Keyword Token*/
+//	KEY_T, /* Keyword Token*/
 //	SL_T, /*String Literal */
 //	CL_T, /*Character Literal */
 //	FPL_T, /*Floating Point Literal */
@@ -119,24 +117,23 @@ typedef struct Token {
 
 /* TO_DO: Define lexeme FIXED classes */
 /* These constants will be used on nextClass */
-#define CHRCOL2 '_' 
-#define CHRCOL3 '&' 
-#define CHRCOL4 '\''
-#define LETTER [A,z] /*Letter*/
-#define DIGIT [0,9] /* Digit */
-#define SQ 27 /*Single Line Delimitator - Single Quote for chars*/
-#define Q 34 /*Single Line Delimitator - Double Quote for string*/
-#define MLC 57 /* Multiline Comment slash*/
-#define STAR 52 /* Multiline comment star*/
-#define SLC '#' /*Single line Comment Hash*/
-#define P '.' /*Period for Floating Point Numbers*/
-#define E 'e' /*Exponential for Scientific Notation*/
-#define SP '+' /*Positive sign for Scientific Notation*/
-#define SN '-' /*Negative sign for Scientific Notation*/
-#define U '_' /*Underscore*/
-#define OPENP '(' /*Open parenthesis for MNID*/
-#define CLOSP ')' /*Close parenthesis for MNID*/
-#define OTHER /*Not Finished*/
+
+
+#define LETTER	[A,z]	/* 0: Letter Token [a-z,A-Z] */
+#define DIGIT	[0,9]	/* 1: Digit Token [0-9]		 */
+#define SQ_T	27		/* 2: Single Quote Token ['] */
+#define DQ_T	34		/* 3: Double Quote Token ["] */
+#define LC_T	'{'		/* 4: Left Parenthesis Token [{] */
+#define RC_T	'}'		/* 5: Right Parenthesis Token [}] */
+#define SC_T	'#'		/* 6: Hash Symbol Token [#] */
+#define PERIOD	'.'		/* 7: Decimal Period Token [.] */
+#define EXP		'e'		/* 8: Exponent Token [e] */
+#define SIGN	{'+','-'} /* 9: Sign Token [+|-} */
+#define U_T		'_'		/* 10: Underscore Token */
+#define OPENP	'('	/* 11: Open Parenthesis Token [(] */
+#define CLOSEP	')'	/* 12: Close Parenthesis Token [)] */
+#define OTHER	!(LETTER || DIGIT || SQ_T || Q_T || LC_T || RC_T || SC_T || P_T || E_T || S_T || U_T || OP_T || CP_T)/* 13: Other Tokens */
+#define SIGMA	''	/* 14: Empty Token */
 
 /* These constants will be used on VID / MID function */
 #define MNIDPREFIX '&'
@@ -168,7 +165,7 @@ static apc_intg transitionTable[][TABLE_COLUMNS] = {
 #define FSNR	1		/* accepting state with no retract */
 #define FSWR	2		/* accepting state with retract */
 
-/* TO_DO: Define list of acceptable states */
+/* TO_DO: Define list of acceptable states */ 
 static apc_intg stateType[] = {
 	NOFS, /* 00 */
 	NOFS, /* 01 */
@@ -177,7 +174,40 @@ static apc_intg stateType[] = {
 	NOFS, /* 04 */
 	FSNR, /* 05 (SL) */
 	FSNR, /* 06 (Err1 - no retract) */
-	FSWR  /* 07 (Err2 - retract) */
+	FSWR,  /* 07 (Err2 - retract) */
+
+	NOFS, /* 00 */
+	NOFS, /* 01 */
+	NOFS, /* 02 */
+	FSNR, /* 03 (MNID) - Method Name Identifier */
+	FSWR, /* 04 (KEY) - Keyword */
+	NOFS, /* 05 */
+	FSWR, /* 06 (SL_T) - String Literal Token */
+	NOFS, /* 07 */
+	NOFS, /* 08 */
+	FSNR, /* 09 (CL_T) - Character Literal Token (Ex: 'x' or '9') */
+	NOFS, /* 10 */
+	NOFS, /* 11 */
+	NOFS, /* 12 */
+	FSNR, /* 13 (FPL_T) - Floating Point Literal (Ex: 123.456) */
+	NOFS, /* 14 */
+	NOFS, /* 15 */
+	NOFS, /* 16 */
+	NOFS, /* 17 */
+	FSNR, /* 18 (FPL_T) - Floating Point Literal (Ex: 4e+33 OR 4e-33) */
+	FSNR, /* 19 (IL_T) - Integer Literal (Ex: 123456) */
+	NOFS, /* 20 */
+	FSNR, /* 21 (MLC_T) - Multiline Comment */
+	NOFS, /* 22 */
+	FSNR, /* 23 (SLC_T) - Single Line Comment */
+	NOFS, /* 24 */
+	FSNR, /* 25 (FPL_T) - Floating Point Literal (Ex: 12.33e+44 OR 12.33e-5) */
+	NOFS, /* 26 */
+	NOFS, /* 27 */
+	FSNR, /* 28 (VID_T) - Variable Identifier (Ex: _x OR _hands) */
+
+
+
 };
 
 /*
