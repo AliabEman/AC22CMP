@@ -141,25 +141,40 @@ Token tokenizer(void) {
 			return currentToken;
 			line++;
 			break;
-
 		/* Cases for symbols */
-		case ';':
-			currentToken.code = EOS_T;
+		case '\'':
+			currentToken.code = SQ_T;
+			return currentToken;
+		case '\"':
+			currentToken.code = DQ_T;
+			return currentToken;
+		case '#':
+			currentToken.code = SC_T;
+			return currentToken;
+		case '.':
+			currentToken.code = PERIOD_T;
+			return currentToken;		
+		case 'e':
+			currentToken.code = EXP_T;
+			return currentToken;
+		case '+':
+			currentToken.code = SIGN_T;
+			return currentToken;
+		case '-':
+			currentToken.code = SIGN_T;
+			return currentToken;
+		case '_':
+			currentToken.code = U_T;
 			return currentToken;
 		case '(':
-			currentToken.code = LPR_T;
+			currentToken.code = OP_T;
 			return currentToken;
 		case ')':
-			currentToken.code = RPR_T;
+			currentToken.code = CP_T;
 			return currentToken;
-		case '{':
-			currentToken.code = LBR_T;
-			return currentToken;
-		case '}':
-			currentToken.code = RBR_T;
-			return currentToken;
+
 		/* Comments */
-		case '#':
+		case '{':
 			newc = readerGetChar(sourceBuffer);
 			do {
 				c = readerGetChar(sourceBuffer);
@@ -170,7 +185,7 @@ Token tokenizer(void) {
 				else if (c == '\n') {
 					line++;
 				}
-			} while (c != '#' && c != CHARSEOF0 && c != CHARSEOF255);
+			} while (c != '}' && c != CHARSEOF0 && c != CHARSEOF255);
 			break;
 		/* Cases for END OF FILE */
 		case CHARSEOF0:
@@ -191,7 +206,7 @@ Token tokenizer(void) {
 		/* TO_DO: Adjust / check the logic for your language */
 
 		default: // general case
-			state = nextState(state, c);
+			state = nextState(state, c); //c is taken from the reader
 			lexStart = readerGetPosRead(sourceBuffer) - 1;
 			readerSetMark(sourceBuffer, lexStart);
 			int pos = 0;
@@ -249,7 +264,7 @@ Token tokenizer(void) {
  */
  /* TO_DO: Just change the datatypes */
 
-apc_intg nextState(apc_intg state, apc_char c) {
+apc_intg nextState(apc_intg state, apc_char c) { //transform the char c into a class
 	apc_intg col;
 	apc_intg next;
 	col = nextClass(c);
@@ -282,18 +297,45 @@ apc_intg nextState(apc_intg state, apc_char c) {
 apc_intg nextClass(apc_char c) {
 	apc_intg val = -1;
 	switch (c) {
-	case CHRCOL2:
+	case SQ_T: //single quote: for char ID
 		val = 2;
 		break;
-	case CHRCOL3:
+	case DQ_T: //double quote: for string ID
 		val = 3;
 		break;
-	case CHRCOL4:
+	case LC_T: //for left brace in MLC
 		val = 4;
 		break;
+	case RC_T: //for right brace in MLC
+		val = 5;
+		break;
+	case SC_T: //hash for for SLC
+		val = 6;
+		break;
+	case PERIOD_T: // for floating points
+		val = 7;
+		break;
+	case EXP_T: //for exponential floats
+		val = 8;
+		break;
+	case SIGN_T: //for exponential floats
+		val = 9;
+		break;
+	case U_T: //underscore for identifying VID's
+		val = 10;
+		break;
+	case OP_T: // for MNID's
+		val = 11;
+		break;
+	case CP_T: // for MNID's
+		val = 12;
+		break;
+	//case LC_T:
+	//	val = 14;
+	//	break;
 	case CHARSEOF0:
 	case CHARSEOF255:
-		val = 5;
+		val = 15;
 		break;
 	default:
 		if (isalpha(c))
@@ -301,7 +343,7 @@ apc_intg nextClass(apc_char c) {
 		else if (isdigit(c))
 			val = 1;
 		else
-			val = 6;
+			val = 13;
 	}
 	return val;
 }
@@ -336,6 +378,21 @@ Token funcIL(apc_char lexeme[]) {
 		}
 	}
 	return currentToken;
+}
+
+/* Floating point function taken from week 10 demo, hybridized to acknowledge 
+ApouC compiler floating point numbers */
+
+Token funcFPL(apc_char lexeme[]) {
+	Token currentToken = { 0 };
+	apc_doub tDouble = atof(lexeme);
+	if (tDouble == 0.0 || tDouble >= FLT_MIN && tDouble <= FLT_MAX) {
+		currentToken.code = FPL_T;
+		currentToken.attribute.floatValue = (apc_real)tDouble;
+	}
+	else {
+		currentToken = (*finalStateTable[ESNR])(lexeme);
+	}
 }
 
 

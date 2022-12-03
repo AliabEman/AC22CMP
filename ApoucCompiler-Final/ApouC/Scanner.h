@@ -45,8 +45,6 @@
 
 /* TO_DO: Define Token codes - Create your token classes */
 enum TOKENS {
-	
- 
 
 	ERR_T,		/*  0: Error token */
 	EOS_T,		/*  8: End of statement (semicolon) */
@@ -54,7 +52,7 @@ enum TOKENS {
 	INL_T,		/* 10: Run-time error token */
 	SEOF_T,		/* 11: Source end-of-file token */
 
-//	MNID_T, /* Method Name Identifier Token */
+	//MNID_T, /* Method Name Identifier Token */
 //	KEY_T, /* Keyword Token*/
 //	SL_T, /*String Literal */
 //	CL_T, /*Character Literal */
@@ -84,6 +82,9 @@ typedef union TokenAttribute {
 	apc_real floatValue;					/* floating-point literal attribute (value) */
 	apc_char idLexeme[VID_LEN + 1];		/* variable identifier token attribute */
 	apc_char errLexeme[ERR_LEN + 1];		/* error token attribite */
+
+	apc_intg contentChar;				/* character literal offset from the beginning of the character literal buffer (charLiteralTable -> content)*/
+
 } TokenAttribute;
 
 /* TO_DO: Should be used if no symbol table is implemented */
@@ -119,26 +120,29 @@ typedef struct Token {
 /* These constants will be used on nextClass */
 
 
-#define LETTER	[A,z]	/* 0: Letter Token [a-z,A-Z] */
-#define DIGIT	[0,9]	/* 1: Digit Token [0-9]		 */
-#define SQ_T	'\''		/* 2: Single Quote Token ['] */
-#define DQ_T	'\"'		/* 3: Double Quote Token ["] */
-#define LC_T	'{'		/* 4: Left Parenthesis Token [{] */
-#define RC_T	'}'		/* 5: Right Parenthesis Token [}] */
+#define LETTER_T	[A,z]	/* 0: Letter Token [a-z,A-Z] */
+#define DIGIT_T	[0,9]	/* 1: Digit Token [0-9]		 */
+#define SQ_T	'\''	/* 2: Single Quote Token ['] */
+#define DQ_T	'\"'	/* 3: Double Quote Token ["] */
+#define LC_T	'{'		/* 4: Left Parenthesis Token [{] */ //MLC
+#define RC_T	'}'		/* 5: Right Parenthesis Token [}] */ //MLC
 #define SC_T	'#'		/* 6: Hash Symbol Token [#] */
-#define PERIOD	'.'		/* 7: Decimal Period Token [.] */
-#define EXP		'e'		/* 8: Exponent Token [e] */
-//need to use if/ else to define: #define SIGN	{'+','-'} /* 9: Sign Token [+|-} */
+#define PERIOD_T	'.'		/* 7: Decimal Period Token [.] */
+#define EXP_T		'e'		/* 8: Exponent Token [e] */
+//need to use if/ else to define: #define SIGN	{'+','-'} 
+#ifndef SIGN_T '+'		/* 9: Sign Token [+|-} */
+	#define SIGN_T '-'	/* 9: Sign Token [+|-} */
+#endif
 #define U_T		'_'		/* 10: Underscore Token */
-#define OPENP	'('	/* 11: Open Parenthesis Token [(] */
-#define CLOSEP	')'	/* 12: Close Parenthesis Token [)] */
-#define EOL_T '\n' /* 15: End of Line, New-Line) */
-#define O_T		!(LETTER || DIGIT || SQ_T || DQ_T || LC_T || RC_T || SC_T || PERIOD || EXP || U_T || OPENP || CLOSEP || EOL_T)
+#define OP_T		'('	/* 11: Open Parenthesis Token [(] */
+#define CP_T		')'	/* 12: Close Parenthesis Token [)] */
+#define EOL_T	'\n' /* 15: End of Line, New-Line) */
+//#define O_T		!(LETTER || DIGIT || SQ_T || DQ_T || LC_T || RC_T || SC_T || PERIOD || EXP || U_T || OPENP || CLOSEP || EOL_T)
 // need to watch for this #define OTHER	!(LETTER || DIGIT || SQ_T || Q_T || LC_T || RC_T || SC_T || P_T || E_T || S_T || U_T || OP_T || CP_T)/* 13: Other Tokens */
 //focus on tab #define SIGMA	' '	/* 14: Empty Token */
 
 /* These constants will be used on VID / MID function */
-#define MNIDPREFIX '&'
+#define MNIDPREFIX '_' /* Same as token 10, underscore token*/
 
 /* TO_DO: Error states and illegal state */
 #define FS		100		/* Illegal state */
@@ -174,7 +178,7 @@ static apc_intg transitionTable[][TABLE_COLUMNS] = {
 	{ ESNR, ESNR,     9, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR},	//S8: NOAS
 	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S9: ASNR (FPL_T)
 	{   19,   10,    19,   19,    19,    19,    19,   11,   16,   19,    19,     19,     19,      19,        19,   ESWR},	//S10: NOAS
-	{ ESNR, ESNR,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR},	//S11: NOAS
+	{ ESNR, ESNR,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR},	//S11:  NOAS
 	{   13,   12,    13,   13,    13,    13,    13,   13,   14,   13,    13,     13,     13,      13,        13,   ESWR},	//S12: NOAS
 	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S13: ASNR (FPL_T)
 	{ ESNR, ESNR,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR,   15,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR},	//S14: NOAS
@@ -275,6 +279,7 @@ Token funcFPL	(apc_char lexeme[]);
 Token funcMLC	(apc_char lexeme[]);
 Token funcSLC	(apc_char lexeme[]);
 Token funcIL	(apc_char lexeme[]);
+Token funcFPL	(apc_char lexeme[]);
 
 /* 
  * Accepting function (action) callback table (array) definition 
@@ -338,17 +343,16 @@ Language keywords
 /* TO_DO: Define the list of keywords */
 static apc_char* keywordTable[KWT_SIZE] = {
 
-	"int",
-	"float",
-	"string",
-	"char",
+//	"int",
+//	"float",
+//	"string",
+//	"char",
 	"if",
 	"elif",
 	"else",	
 	"return",
 	"do",
 	"break"
-	
 };
 
 /* NEW SECTION: About indentation */
