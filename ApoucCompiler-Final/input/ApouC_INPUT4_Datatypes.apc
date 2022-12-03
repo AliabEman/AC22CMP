@@ -1,0 +1,29 @@
+# ApouC Example 4:
+# Datatypes & Function examples 
+# Referenced from w3schools.com
+
+#String
+x= "Hello World"
+#Integer
+y = 20
+#Float
+z = 20.5
+#Boolean
+a = True
+b = False
+
+#Casting Datatypes
+
+#String Casting
+c = str("21")
+#Integer Casting
+d = int(20)
+#Float Casting
+e = float(20.5)
+
+#Function example
+x = "awesome"
+
+def myfunc():
+  print("Python is " + x)
+myfunc()

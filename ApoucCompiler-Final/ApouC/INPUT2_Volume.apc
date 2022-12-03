@@ -1,0 +1,13 @@
+# BOA Example 3:
+  Volume of a sphere #
+main& {
+	data {
+		real PI%, r%, Vol%;
+	}
+	code {
+		PI% = 3.14;
+		input&(r%);
+		Vol% = 4.0 / 3.0 * PI% * (r% * r% * r%);
+		print&(Vol%);
+	}
+}

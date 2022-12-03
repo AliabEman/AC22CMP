@@ -1,0 +1,31 @@
+﻿  MainScanner.c
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\MainScanner.c(215,49): warning C4013: 'readerGetSize' undefined; assuming extern returning int
+  Scanner.c
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(150,29): error C2065: 'LPR_T': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(153,29): error C2065: 'RPR_T': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(156,29): error C2065: 'LBR_T': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(159,29): error C2065: 'RBR_T': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(285,14): error C2065: 'CHRCOL2': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(288,14): error C2065: 'CHRCOL3': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(291,14): error C2065: 'CHRCOL4': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(285,2): error C2051: case expression not constant
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(288,2): error C2051: case expression not constant
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(291,2): error C2051: case expression not constant
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(363,30): error C2065: 'MNID_T': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(411,27): error C2065: 'STR_T': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(431,27): error C2065: 'KW_T': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(496,13): error C2065: 'MNID_T': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(499,12): error C2065: 'STR_T': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(503,12): error C2065: 'LPR_T': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(506,12): error C2065: 'RPR_T': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(509,12): error C2065: 'LBR_T': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(512,12): error C2065: 'RBR_T': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(515,11): error C2065: 'KW_T': undeclared identifier
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(496,2): error C2051: case expression not constant
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(499,2): error C2051: case expression not constant
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(503,2): error C2051: case expression not constant
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(506,2): error C2051: case expression not constant
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(509,2): error C2051: case expression not constant
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(512,2): error C2051: case expression not constant
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(515,2): error C2051: case expression not constant
+  Generating Code...

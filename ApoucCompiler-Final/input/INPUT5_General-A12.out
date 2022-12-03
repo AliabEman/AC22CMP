@@ -1,0 +1,48 @@
+ _________________________________ 
+|                                 |
+| ....... 'APOUC' LANGUAGE ...... |
+|///// /\------\\\\\\\\\|
+|//// // \  _ \\\\\\\  |
+|/// //___\   __/\\           |
+|// //     \__\\\            |
+|\\  *  / // /\\             |
+|\\\___/ // /\\             |
+|\\\\/ // /\\\             |
+|///////\ \ \\\\            |
+|///////\ \ \\\\\\\\  |
+|//////\\    \\\\\\\\\|
+| .. ALGONQUIN COLLEGE - 2022F .. |
+|_________________________________|
+
+[Option 'R': Starting READER .....]
+
+Reading file INPUT5_General.apc ....Please wait
+The input file INPUT5_General.apc has not been completely loaded.
+Current size of buffer: 250.
+Last character read from the input file is: % 37
+Input file size: 687
+
+Printing buffer parameters:
+
+The capacity of the buffer is:  250
+The current size of the buffer is:  250
+The operational mode of the buffer is: f
+The increment factor of the buffer is:  1
+The first symbol in the buffer is:  #
+The value of the flags field is: 04
+Number of different chars read: 54
+
+Printing buffer contents:
+
+# SOFIA Example
+The program is "lexically" correct and should not generate any error (based on Platypus from Svillen Ranev) #
+main& {
+	data {
+		int i$;
+		real a%, sum008%;
+		string text@;
+	}
+	code {
+		a%=+1.2;
+		sum008% = 7.87050 ;
+		input&(a%,sum008

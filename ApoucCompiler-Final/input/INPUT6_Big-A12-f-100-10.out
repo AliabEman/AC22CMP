@@ -1,0 +1,41 @@
+ _________________________________ 
+|                                 |
+| ....... 'APOUC' LANGUAGE ...... |
+|///// /\------\\\\\\\\\|
+|//// // \  _ \\\\\\\  |
+|/// //___\   __/\\           |
+|// //     \__\\\            |
+|\\  *  / // /\\             |
+|\\\___/ // /\\             |
+|\\\\/ // /\\\             |
+|///////\ \ \\\\            |
+|///////\ \ \\\\\\\\  |
+|//////\\    \\\\\\\\\|
+| .. ALGONQUIN COLLEGE - 2022F .. |
+|_________________________________|
+
+[Option 'R': Starting READER .....]
+
+Reading file INPUT6_Big.apc ....Please wait
+The input file INPUT6_Big.apc has not been completely loaded.
+Current size of buffer: 100.
+Last character read from the input file is: t 116
+Input file size: 32531
+
+Printing buffer parameters:
+
+The capacity of the buffer is:  100
+The current size of the buffer is:  100
+The operational mode of the buffer is: f
+The increment factor of the buffer is:  10
+The first symbol in the buffer is:  #
+The value of the flags field is: 04
+Number of different chars read: 30
+
+Printing buffer contents:
+
+# BOA Example
+  The program is "lexically" correct
+  and should not generate any error #
+main& {
+	da

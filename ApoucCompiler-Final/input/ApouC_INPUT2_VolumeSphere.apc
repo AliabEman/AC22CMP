@@ -1,0 +1,20 @@
+# ApouC Example 2:
+#  Volume of a sphere 
+# Referenced from w3schools.com
+
+R = 7 #outer radius of sphere
+r = 5 # inner radius of sphere
+
+#calculating area of solid sphere
+area = 4*(pi)*(r)*(r)
+
+#calculating volume of hollow sphere
+volume_hollow = 4*(pi)*(R - r)*(R - r)*(R - r)
+
+#calculating volume of solid sphere
+volume_solid = (1/3)*(pi)*(R)*(R)*(R)
+
+#displaying output
+print("Area of the sphere: ", str(area))
+print("Volume of the hollow sphere: ", str(volume_hollow))
+print("Volume of the solid sphere: ", str(volume_solid))
