@@ -1,1 +1,13 @@
-{ABCDEF}
+if 33
+int 
+float
+else 647
+string
+
+elif
+return
+do
+break
+def
+
+d33\n

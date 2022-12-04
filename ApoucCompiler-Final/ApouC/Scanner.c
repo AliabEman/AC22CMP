@@ -105,7 +105,7 @@ apc_intg startScanner(ReaderPointer  psc_buf) {
  ***********************************************************
  */
 
-Token tokenizer(void) {
+Token tokenizer(apc_void) {
 
 	/* TO_DO: Follow the standard and adjust datatypes */
 
@@ -137,9 +137,7 @@ Token tokenizer(void) {
 		case '\f':
 			break;
 		case '\n':
-			currentToken.code = EOL_T;
-			return currentToken;
-			line++;
+			line++;		
 			break;
 		/* Cases for symbols */
 		case '\'':
@@ -148,20 +146,17 @@ Token tokenizer(void) {
 		case '\"':
 			currentToken.code = DQ_T;
 			return currentToken;
-		case '#':
-			currentToken.code = SC_T;
-			return currentToken;
-		case '.':
+		case '.': 
 			currentToken.code = PERIOD_T;
 			return currentToken;		
-		case 'e':
+		case '^':
 			currentToken.code = EXP_T;
 			return currentToken;
 		case '+':
-			currentToken.code = SIGN_T;
+			currentToken.code = SIGNP_T;
 			return currentToken;
 		case '-':
-			currentToken.code = SIGN_T;
+			currentToken.code = SIGNN_T;
 			return currentToken;
 		case '_':
 			currentToken.code = U_T;
@@ -172,20 +167,30 @@ Token tokenizer(void) {
 		case ')':
 			currentToken.code = CP_T;
 			return currentToken;
-
 		/* Comments */
-		case '{':
+		case '{': //multiline comments
 			newc = readerGetChar(sourceBuffer);
 			do {
 				c = readerGetChar(sourceBuffer);
 				if (c == CHARSEOF0 || c == CHARSEOF255) {
 					readerRetract(sourceBuffer);
-					//return currentToken;
+					//return currentToken; //removed comment 
 				}
 				else if (c == '\n') {
 					line++;
 				}
+
 			} while (c != '}' && c != CHARSEOF0 && c != CHARSEOF255);
+			break;
+		case '#': //Single Line comments
+			newc = readerGetChar(sourceBuffer);
+			do {
+				c = readerGetChar(sourceBuffer);
+				if (c == CHARSEOF0 || c == CHARSEOF255 || c == EOL_T) {
+					readerRetract(sourceBuffer);
+					return currentToken; //removed comment 
+				}
+			} while (c != '\n' && c != CHARSEOF0 && c != CHARSEOF255);
 			break;
 		/* Cases for END OF FILE */
 		case CHARSEOF0:
@@ -318,7 +323,10 @@ apc_intg nextClass(apc_char c) {
 	case EXP_T: //for exponential floats
 		val = 8;
 		break;
-	case SIGN_T: //for exponential floats
+	case SIGNP_T: //for exponential floats
+		val = 9;
+		break;
+	case SIGNN_T: //for exponential floats
 		val = 9;
 		break;
 	case U_T: //underscore for identifying VID's
@@ -330,9 +338,9 @@ apc_intg nextClass(apc_char c) {
 	case CP_T: // for MNID's
 		val = 12;
 		break;
-	//case LC_T:
-	//	val = 14;
-	//	break;
+	case SIGMA_T:
+		val = 14;
+		break;
 	case CHARSEOF0:
 	case CHARSEOF255:
 		val = 15;
@@ -365,35 +373,21 @@ Token funcIL(apc_char lexeme[]) {
 	Token currentToken = { 0 };
 	apc_long tlong;
 	if (lexeme[0] != '\0' && strlen(lexeme) > NUM_LEN) {
-		currentToken = (*finalStateTable[ESNR])(lexeme);
+		currentToken = (*finalStateTable[ESNR])(lexeme); 
 	}
 	else {
 		tlong = atol(lexeme);
 		if (tlong >= 0 && tlong <= SHRT_MAX) {
-			currentToken.code = INL_T;
+			currentToken.code = IL_T;
 			currentToken.attribute.intValue = (apc_intg)tlong;
 		}
 		else {
-			currentToken = (*finalStateTable[ESNR])(lexeme);
+			currentToken = (*finalStateTable[ESNR])(lexeme); 
 		}
 	}
 	return currentToken;
 }
 
-/* Floating point function taken from week 10 demo, hybridized to acknowledge 
-ApouC compiler floating point numbers */
-
-Token funcFPL(apc_char lexeme[]) {
-	Token currentToken = { 0 };
-	apc_doub tDouble = atof(lexeme);
-	if (tDouble == 0.0 || tDouble >= FLT_MIN && tDouble <= FLT_MAX) {
-		currentToken.code = FPL_T;
-		currentToken.attribute.floatValue = (apc_real)tDouble;
-	}
-	else {
-		currentToken = (*finalStateTable[ESNR])(lexeme);
-	}
-}
 
 
 /*
@@ -409,26 +403,49 @@ Token funcFPL(apc_char lexeme[]) {
  ***********************************************************
  */
  /* TO_DO: Adjust the function for ID */
+/* Need to check if ID is a KEYWORD, if not, identify it as a VID*/
 
 Token funcID(apc_char lexeme[]) {
 	Token currentToken = { 0 };
 	size_t length = strlen(lexeme);
-	apc_char lastch = lexeme[length - 1];
-	apc_intg isID = APC_FALSE;
-	switch (lastch) {
-		case MNIDPREFIX:
-			currentToken.code = MNID_T;
-			isID = APC_TRUE;
-			break;
-		default:
-			// Test Keyword
-			currentToken = funcKEY(lexeme);
-			break;
+//apc_char lastch = lexeme[length - 1];
+//	apc_char firstch = lexeme[0];
+
+	//apc_intg isID = APC_FALSE;
+
+	apc_intg kwindex = -1, j = 0;
+	for (j = 0; j < KWT_SIZE; j++)
+		if (!strcmp(lexeme, &keywordTable[j][0]))
+			kwindex = j;
+	if (kwindex != -1) {
+		currentToken.code = KEY_T;
+		currentToken.attribute.codeType = kwindex;
+		return currentToken;
 	}
-	if (isID == APC_TRUE) {
+
+	else {
+		//currentToken = funcKEY(lexeme);
+		currentToken.code = MNID_T;
 		strncpy(currentToken.attribute.idLexeme, lexeme, VID_LEN);
 		currentToken.attribute.idLexeme[VID_LEN] = CHARSEOF0;
 	}
+
+//	switch (lastch) {
+//switch (firstch) {
+//		case MNIDPREFIX:
+
+//			currentToken.code = MNID_T;
+//			isID = APC_TRUE;
+//			break;
+//		default:
+			// Test Keyword
+//			currentToken = funcKEY(lexeme);
+//			break;
+//	}
+//	if (isID == APC_TRUE) {
+//		strncpy(currentToken.attribute.idLexeme, lexeme, VID_LEN);
+//		currentToken.attribute.idLexeme[VID_LEN] = CHARSEOF0;
+//	}
 	return currentToken;
 }
 
@@ -465,7 +482,7 @@ Token funcSL(apc_char lexeme[]) {
 		errorNumber = RTE_CODE;
 		return currentToken;
 	}
-	currentToken.code = STR_T;
+	currentToken.code = SL_T;
 	return currentToken;
 }
 
@@ -485,7 +502,7 @@ Token funcKEY(apc_char lexeme[]) {
 		if (!strcmp(lexeme, &keywordTable[j][0]))
 			kwindex = j;
 	if (kwindex != -1) {
-		currentToken.code = KW_T;
+		currentToken.code = KEY_T;
 		currentToken.attribute.codeType = kwindex;
 	}
 	else {
@@ -526,6 +543,8 @@ Token funcErr(apc_char lexeme[]) {
 }
 
 
+
+
 /*
  ************************************************************
  * The function prints the token returned by the scanner
@@ -535,6 +554,17 @@ Token funcErr(apc_char lexeme[]) {
 apc_void printToken(Token t) {
 	extern apc_char* keywordTable[]; /* link to keyword table in */
 	switch (t.code) {
+	//Functional Token Cases:
+	case KEY_T:
+		printf("KW_T\t\t%s\n", keywordTable[t.attribute.codeType]);
+		break;
+
+	case IL_T:
+		printf("IL_T\t\t%d\n", t.attribute.intValue);
+		break;
+
+		//Broken Token Cases:
+	
 	case RTE_T:
 		printf("RTE_T\t\t%s", t.attribute.errLexeme);
 		/* Call here run-time error handling component */
@@ -550,14 +580,45 @@ apc_void printToken(Token t) {
 	case SEOF_T:
 		printf("SEOF_T\t\t%d\t\n", t.attribute.seofType);
 		break;
+	case EOS_T:
+		printf("EOS_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+
+
 	case MNID_T:
 		printf("MNID_T\t\t%s\n", t.attribute.idLexeme);
 		break;
-	case STR_T:
+	case VID_T:
+		printf("VID_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+
+	case SL_T:
 		printf("STR_T\t\t%d\t ", (apc_intg)t.attribute.codeType);
 		printf("%s\n", readerGetContent(stringLiteralTable, (apc_intg)t.attribute.codeType));
 		break;
-	case LPR_T:
+	case CL_T:
+		printf("CL_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+	case FPL_T:
+		printf("FPL_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+
+	case MLC_T:
+		printf("MLC_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+	case SLC_T:
+		printf("SLC_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+	case LC_T:
+		printf("LPR_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+/*	case LC_T:
+		printf("LPR_T\n");
+		break;
+	case LC_T:
+		printf("LPR_T\n");
+		break;
+	case LC_T:
 		printf("LPR_T\n");
 		break;
 	case RPR_T:
@@ -569,12 +630,8 @@ apc_void printToken(Token t) {
 	case RBR_T:
 		printf("RBR_T\n");
 		break;
-	case KW_T:
-		printf("KW_T\t\t%s\n", keywordTable[t.attribute.codeType]);
-		break;
-	case EOS_T:
-		printf("EOS_T\n");
-		break;
+*/
+
 	default:
 		printf("Scanner error: invalid token code: %d\n", t.code);
 	}
@@ -583,3 +640,36 @@ apc_void printToken(Token t) {
 /*
 TO_DO: (If necessary): HERE YOU WRITE YOUR ADDITIONAL FUNCTIONS (IF ANY).
 */
+
+Token funcCL(apc_char lexeme[]) {
+	Token currentToken = { 0 };
+	return currentToken;
+}
+
+Token funcMLC(apc_char lexeme[]) {
+	Token currentToken = { 0 };
+	return currentToken;
+}
+
+Token funcSLC(apc_char lexeme[]) {
+	Token currentToken = { 0 };
+	return currentToken;
+
+}
+
+/* Floating point function taken from week 10 demo, hybridized to acknowledge
+ApouC compiler floating point numbers */
+
+Token funcFPL(apc_char lexeme[]) {
+	Token currentToken = { 0 };
+	apc_doub tDouble = atof(lexeme);
+	if (tDouble == 0.0 || tDouble >= FLT_MIN && tDouble <= FLT_MAX) {
+		currentToken.code = FPL_T;
+		currentToken.attribute.floatValue = (apc_real)tDouble;
+	}
+	else {
+		currentToken = (*finalStateTable[ESNR])(lexeme);
+	}
+
+	return currentToken;
+}

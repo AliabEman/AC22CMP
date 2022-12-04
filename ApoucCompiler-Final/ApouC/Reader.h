@@ -284,4 +284,6 @@ apc_byte		readerGetFlags		(ReaderPointer const);
 */
 apc_intg		readerShowStat		(ReaderPointer const);
 
+apc_intg		readerGetSize		(ReaderPointer const);
+
 #endif

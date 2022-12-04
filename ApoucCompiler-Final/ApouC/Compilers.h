@@ -112,9 +112,9 @@ Main functions signatures
 *	Algorithm:
 */
 apc_intg mainReader  (apc_intg argc, apc_char** argv);
-/*
+
 apc_intg mainScanner (apc_intg argc, apc_char** argv);
-apc_intg mainParser  (apc_intg argc, apc_char** argv);
+/*apc_intg mainParser(apc_intg argc, apc_char** argv);
 */
 apc_void printLogo();
 

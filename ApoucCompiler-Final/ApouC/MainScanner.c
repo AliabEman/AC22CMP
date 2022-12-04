@@ -67,7 +67,7 @@ apc_intg errorNumber;				/* Run-time error number = 0 by default (ANSI) */
 
 /* External objects */
 extern apc_intg line; /* Source code line numbers - defined in scanner.c */
-extern Token tokenizer(sofia_nul);
+extern Token tokenizer(apc_void); //used to be sofia_nul
 
 /*
  * -------------------------------------------------------------
@@ -195,7 +195,7 @@ apc_intg mainScanner(apc_intg argc, apc_char** argv) {
 apc_void printScannerError(apc_char* fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
-	(void)vfprintf(stderr, fmt, ap);
+	(apc_void)vfprintf(stderr, fmt, ap);
 	va_end(ap);
 	/* Move to new line */
 	if (strchr(fmt, '\n') == NULL)

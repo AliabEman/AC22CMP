@@ -1,20 +1,4 @@
 ﻿  Scanner.c
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.h(133,1): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(390,28): error C2065: 'FPL_T': undeclared identifier
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(420,30): error C2065: 'MNID_T': undeclared identifier
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(468,27): error C2065: 'STR_T': undeclared identifier
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(488,27): error C2065: 'KW_T': undeclared identifier
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(553,13): error C2065: 'MNID_T': undeclared identifier
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(556,12): error C2065: 'STR_T': undeclared identifier
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(560,12): error C2065: 'LPR_T': undeclared identifier
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(563,12): error C2065: 'RPR_T': undeclared identifier
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(566,12): error C2065: 'LBR_T': undeclared identifier
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(569,12): error C2065: 'RBR_T': undeclared identifier
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(572,11): error C2065: 'KW_T': undeclared identifier
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(553,2): error C2051: case expression not constant
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(556,2): error C2051: case expression not constant
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(560,2): error C2051: case expression not constant
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(563,2): error C2051: case expression not constant
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(566,2): error C2051: case expression not constant
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(569,2): error C2051: case expression not constant
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(572,2): error C2051: case expression not constant
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(581,10): warning C4477: 'printf' : format string '%s' requires an argument of type 'char *', but variadic argument 1 has type 'int'
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(581,10): warning C4313: 'printf': '%s' in format string conflicts with argument 1 of type 'int'
+  ApouC.vcxproj -> C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\x64\Debug\ApouC.exe

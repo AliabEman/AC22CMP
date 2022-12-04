@@ -46,21 +46,21 @@
 /* TO_DO: Define Token codes - Create your token classes */
 enum TOKENS {
 
-	ERR_T,		/*  0: Error token */
-	EOS_T,		/*  8: End of statement (semicolon) */
-	RTE_T,		/*  9: Run-time error token */
-	INL_T,		/* 10: Run-time error token */
-	SEOF_T,		/* 11: Source end-of-file token */
+	ERR_T,		/*  0: Error token */ //0
+	EOS_T,		/*  8: End of statement (\n) */ //1
+	RTE_T,		/*  9: Run-time error token */ //2
+	SEOF_T,		/* 11: Source end-of-file token */ //3
 
-	//MNID_T, /* Method Name Identifier Token */
-//	KEY_T, /* Keyword Token*/
-//	SL_T, /*String Literal */
-//	CL_T, /*Character Literal */
-//	FPL_T, /*Floating Point Literal */
-//	IL_T, /*Integer Literal */
-//	MLC_T, /*Multi-Line Comment Token*/
-//	SLC /*Single-Line Comment Token*/
-
+	//added by me:
+	MNID_T, /* Method Name Identifier Token */ //4
+	KEY_T, /* Keyword Token*/ //5
+	SL_T, /*String Literal */ //6
+	CL_T, /*Character Literal */ //7 
+	FPL_T, /*Floating Point Literal */ //8
+	IL_T, /*Integer Literal */ //9
+	MLC_T, /*Multi-Line Comment Token*/ //10 
+	SLC_T, /*Single-Line Comment Token*/ //11
+	VID_T /*Variable Identifier Token*/ //12
 };
 
 /* TO_DO: Operators token attributes */
@@ -70,7 +70,7 @@ typedef enum LogicalOperators { OP_AND, OP_OR, OP_NOT } LogOperator;
 typedef enum SourceEndOfFile { SEOF_0, SEOF_255 } EofOperator;
 
 /* TO_DO: Data structures for declaring the token and its attributes */
-typedef union TokenAttribute {
+typedef union TokenAttribute { //MAIN CLASS ABOUT ATTRIBUTES
 	apc_intg codeType;      /* integer attributes accessor */
 	AriOperator arithmeticOperator;		/* arithmetic operator attribute code */
 	RelOperator relationalOperator;		/* relational operator attribute code */
@@ -88,10 +88,10 @@ typedef union TokenAttribute {
 } TokenAttribute;
 
 /* TO_DO: Should be used if no symbol table is implemented */
-typedef struct idAttibutes {
+typedef struct idAttibutes { //MAIN CLASS ABOUT ID's
 	apc_byte flags;			/* Flags information */
 	union {
-		apc_intg intValue;				/* Integer value */
+		apc_intg intValue;				/* Integer value */ //MOST IMPORTANT FIELD
 		apc_real floatValue;			/* Float value */
 		apc_char* stringContent;		/* String value */
 	} values;
@@ -119,33 +119,30 @@ typedef struct Token {
 /* TO_DO: Define lexeme FIXED classes */
 /* These constants will be used on nextClass */
 
-
-#define LETTER_T	[A,z]	/* 0: Letter Token [a-z,A-Z] */
-#define DIGIT_T	[0,9]	/* 1: Digit Token [0-9]		 */
-#define SQ_T	'\''	/* 2: Single Quote Token ['] */
-#define DQ_T	'\"'	/* 3: Double Quote Token ["] */
-#define LC_T	'{'		/* 4: Left Parenthesis Token [{] */ //MLC
-#define RC_T	'}'		/* 5: Right Parenthesis Token [}] */ //MLC
-#define SC_T	'#'		/* 6: Hash Symbol Token [#] */
-#define PERIOD_T	'.'		/* 7: Decimal Period Token [.] */
-#define EXP_T		'e'		/* 8: Exponent Token [e] */
+#define SQ_T		'\''/* 2: Single Quote Token ['] */
+#define DQ_T		'\"'/* 3: Double Quote Token ["] */
+#define LC_T		'{'	/* 4: Left Parenthesis Token [{] */ //MLC
+#define RC_T		'}'	/* 5: Right Parenthesis Token [}] */ //MLC
+#define SC_T		'#'	/* 6: Hash Symbol Token [#] */
+#define PERIOD_T	'.'	/* 7: Decimal Period Token [.] */
+#define EXP_T		'^'	/* 8: Exponent Token [e] */
 //need to use if/ else to define: #define SIGN	{'+','-'} 
-#ifndef SIGN_T '+'		/* 9: Sign Token [+|-} */
-	#define SIGN_T '-'	/* 9: Sign Token [+|-} */
-#endif
-#define U_T		'_'		/* 10: Underscore Token */
+#define SIGNP_T		'+'	/* 9: Sign Token {+} */
+#define SIGNN_T		'-'	/* 9: Sign Token {-} */
+#define U_T			'_'	/* 10: Underscore Token */
 #define OP_T		'('	/* 11: Open Parenthesis Token [(] */
 #define CP_T		')'	/* 12: Close Parenthesis Token [)] */
-#define EOL_T	'\n' /* 15: End of Line, New-Line) */
 //#define O_T		!(LETTER || DIGIT || SQ_T || DQ_T || LC_T || RC_T || SC_T || PERIOD || EXP || U_T || OPENP || CLOSEP || EOL_T)
 // need to watch for this #define OTHER	!(LETTER || DIGIT || SQ_T || Q_T || LC_T || RC_T || SC_T || P_T || E_T || S_T || U_T || OP_T || CP_T)/* 13: Other Tokens */
-//focus on tab #define SIGMA	' '	/* 14: Empty Token */
+#define SIGMA_T		' '	/* 14: Empty Token */
+#define EOL_T		'\n' /* 15: End of Line, New-Line) */
+
 
 /* These constants will be used on VID / MID function */
 #define MNIDPREFIX '_' /* Same as token 10, underscore token*/
 
 /* TO_DO: Error states and illegal state */
-#define FS		100		/* Illegal state */
+#define FS		100		/* Final / Illegal state */
 #define ESWR	101		/* Error state with retract */
 #define ESNR	102		/* Error state with no retract */
 
@@ -165,9 +162,10 @@ static apc_intg transitionTable[][TABLE_COLUMNS] = {
 		   //	{    FS,    FS,   FS,   FS,   FS,   FS,   FS}, // S6: ASNR (ES)
 		   //	{    FS,    FS,   FS,   FS,   FS,   FS,   FS},  // S7: ASWR (ER)
 
-/*  [A-z] ,[0-9],    ' ,   " ,  {   ,    } ,  #   ,  .  ,  e  , +   ,   _  ,   (   ,   )   , Other  ,    \e    ,    SEOF}
-	, L(0), D(1), SQ(2), Q(3), LC(4), RC(5), SC(6), P(7), E(8), S(9), U(10), OP(11), CP(12),   O(13), sigma(14), EOL(15)} */
-	{    1,   10,     7,    5,    20,  ESNR,    22, ESNR, ESNR, ESNR,    26,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR},	//S0: NOAS
+/*  [A-z] ,[0-9],    ' ,   " ,  {   ,    } ,  #   ,  .  ,  ^  , +   ,   _  ,   (   ,   )   , Other  ,    \e    ,    SEOF}
+	, L(0), D(1), SQ(2),DQ(3), LC(4), RC(5), SC(6), P(7), E(8), S(9), U(10), OP(11), CP(12),   O(13), sigma(14), EOL(15)} */
+	/* Edit: State 0 used to allow for an underscore to exist, in order to identify the RE path for VID's, no longer doing this.*/
+	{    1,   10,     7,    5,    20,  ESNR,    22, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR},	//S0: NOAS
 	{    1,    1,     4,    4,     4,     4,     4,    4,    4,    4,     1,      2,      4,       4,         4,   ESWR},	//S1: NOAS
 	{    2,    2,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,     2,   ESNR,      3,    ESNR,         2,   ESWR},	//S2: NOAS
 	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S3: ASNR (MNID_T)
@@ -194,8 +192,9 @@ static apc_intg transitionTable[][TABLE_COLUMNS] = {
 	{   25,   24,    25,   25,    25,    25,    25,   25,   25,   25,    25,     25,     25,      25,        25,   ESWR},	//S24: NOAS
 	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S25: ASNR (FPL_T)
 	{   27, ESNR,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR},	//S26: NOAS
-	{   27,   27,    28,   28,    28,    28,    28,   28,   28,   28,    28,     28,     28,      28,        28,   ESWR},	//S27: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S28: ASNR (VID)
+	{   27,   27,     3,    3,     3,     3,     3,    3,    3,    3,     3,      3,      3,       3,         3,   ESWR},	//S27: NOAS
+	/*Removing the VID because of issues with trying to identify the first token (_) and keeping logic for the rest of the chars*/
+	//{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S28: ASNR (VID)
 	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S29: ASWR (ES)
 	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS}	//S30: ASNR (ER)
 };
@@ -206,7 +205,7 @@ static apc_intg transitionTable[][TABLE_COLUMNS] = {
 #define FSWR	2		/* accepting state with retract */
 
 /* TO_DO: Define list of acceptable states */ 
-static apc_intg stateType[] = {
+static apc_intg stateType[] = { //some states are not final, some are final
 //	NOFS, /* 00 */
 //	NOFS, /* 01 */
 //	FSNR, /* 02 (MID) - Methods */
@@ -220,7 +219,7 @@ static apc_intg stateType[] = {
 	NOFS, /* 01 */
 	NOFS, /* 02 */
 	FSNR, /* 03 (MNID) - Method Name Identifier */
-	FSWR, /* 04 (KEY) - Keyword */
+	FSWR, /* 04 (KEY) - Keyword */ //change made: KEY represents Keywords AND VID's
 	NOFS, /* 05 */
 	FSWR, /* 06 (SL_T) - String Literal Token */
 	NOFS, /* 07 */
@@ -244,7 +243,7 @@ static apc_intg stateType[] = {
 	FSNR, /* 25 (FPL_T) - Floating Point Literal (Ex: 12.33e+44 OR 12.33e-5) */
 	NOFS, /* 26 */
 	NOFS, /* 27 */
-	FSNR, /* 28 (VID_T) - Variable Identifier (Ex: _x OR _hands) */
+	//FSNR, /* 28 (VID_T) - Variable Identifier (Ex: _x OR _hands as variables) */
 	FSNR, /* 29 (ERR1) - Error State No Retract */
 	FSWR  /* 30 (ERR2) - Error State With Retract */
 };
@@ -270,16 +269,16 @@ Automata definitions
 typedef Token(*PTR_ACCFUN)(apc_char* lexeme);
 
 /* Declare accepting states functions */
-Token funcSL	(apc_char lexeme[]);
-Token funcID	(apc_char lexeme[]);
-Token funcKEY	(apc_char lexeme[]);
-Token funcErr	(apc_char lexeme[]);
-Token funcCL	(apc_char lexeme[]);
-Token funcFPL	(apc_char lexeme[]);
-Token funcMLC	(apc_char lexeme[]);
-Token funcSLC	(apc_char lexeme[]);
-Token funcIL	(apc_char lexeme[]);
-Token funcFPL	(apc_char lexeme[]);
+Token funcSL	(apc_char lexeme[]); //string literal function
+Token funcID	(apc_char lexeme[]); //identifier function
+Token funcKEY	(apc_char lexeme[]); //keyword function
+Token funcErr	(apc_char lexeme[]); //error function
+Token funcCL	(apc_char lexeme[]); //character literal function
+Token funcFPL	(apc_char lexeme[]); //floating point literal function
+Token funcMLC	(apc_char lexeme[]); //multiline comment function
+Token funcSLC	(apc_char lexeme[]); //single line comment function
+Token funcIL	(apc_char lexeme[]); //integer literal function
+Token funcFPL	(apc_char lexeme[]); //floating point literal function
 
 /* 
  * Accepting function (action) callback table (array) definition 
@@ -325,7 +324,7 @@ static PTR_ACCFUN finalStateTable[] = {
 	funcFPL,	/* FPL	[25] */
 	NULL,		/* -	[26] */
 	NULL,		/* -	[27] */
-	funcID,		/* VID	[28] */
+	//funcID,		/* VID	[28] */
 	funcErr,	/* ERR1	[29] */
 	funcErr		/* ERR2 [30] */
 
@@ -343,16 +342,17 @@ Language keywords
 /* TO_DO: Define the list of keywords */
 static apc_char* keywordTable[KWT_SIZE] = {
 
-//	"int",
-//	"float",
-//	"string",
+	"int",
+	"float",
+	"string",
 //	"char",
 	"if",
 	"elif",
 	"else",	
 	"return",
 	"do",
-	"break"
+	"break",
+	"def"
 };
 
 /* NEW SECTION: About indentation */
@@ -366,7 +366,7 @@ static apc_char* keywordTable[KWT_SIZE] = {
 /* TO_DO: Should be used if no symbol table is implemented */
 typedef struct languageAttributes {
 	apc_char indentationCharType;
-	apc_intg indentationCurrentPos;
+	apc_intg indentationCurrentPos; //increment or decrement
 	/* TO_DO: Include any extra attribute to be used in your scanner (OPTIONAL and FREE) */
 } LanguageAttributes;
 
