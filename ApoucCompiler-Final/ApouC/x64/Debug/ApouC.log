@@ -1,4 +1,6 @@
-﻿  Scanner.c
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(581,10): warning C4477: 'printf' : format string '%s' requires an argument of type 'char *', but variadic argument 1 has type 'int'
-C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(581,10): warning C4313: 'printf': '%s' in format string conflicts with argument 1 of type 'int'
+﻿  MainScanner.c
+  Scanner.c
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(521,39): warning C4047: 'function': 'const char *' differs in levels of indirection from 'apc_char **'
+C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\Scanner.c(521,23): warning C4024: 'strcmp': different types for formal and actual parameter 2
+  Generating Code...
   ApouC.vcxproj -> C:\Users\aliab\OneDrive\Desktop\ApoucCompiler-Desktop\ApouC\x64\Debug\ApouC.exe

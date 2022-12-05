@@ -50,9 +50,8 @@ enum TOKENS {
 	EOS_T,		/*  8: End of statement (\n) */ //1
 	RTE_T,		/*  9: Run-time error token */ //2
 	SEOF_T,		/* 11: Source end-of-file token */ //3
-
 	//added by me:
-	MNID_T, /* Method Name Identifier Token */ //4
+	//MNID_T, /* Method Name Identifier Token */ //4
 	KEY_T, /* Keyword Token*/ //5
 	SL_T, /*String Literal */ //6
 	CL_T, /*Character Literal */ //7 
@@ -82,6 +81,7 @@ typedef union TokenAttribute { //MAIN CLASS ABOUT ATTRIBUTES
 	apc_real floatValue;					/* floating-point literal attribute (value) */
 	apc_char idLexeme[VID_LEN + 1];		/* variable identifier token attribute */
 	apc_char errLexeme[ERR_LEN + 1];		/* error token attribite */
+	apc_char charValue;
 
 	apc_intg contentChar;				/* character literal offset from the beginning of the character literal buffer (charLiteralTable -> content)*/
 
@@ -135,7 +135,7 @@ typedef struct Token {
 //#define O_T		!(LETTER || DIGIT || SQ_T || DQ_T || LC_T || RC_T || SC_T || PERIOD || EXP || U_T || OPENP || CLOSEP || EOL_T)
 // need to watch for this #define OTHER	!(LETTER || DIGIT || SQ_T || Q_T || LC_T || RC_T || SC_T || P_T || E_T || S_T || U_T || OP_T || CP_T)/* 13: Other Tokens */
 #define SIGMA_T		' '	/* 14: Empty Token */
-#define EOL_T		'\n' /* 15: End of Line, New-Line) */
+#define EOS_T		'\n' /* 15: End of Line, New-Line) */
 
 
 /* These constants will be used on VID / MID function */
@@ -147,7 +147,7 @@ typedef struct Token {
 #define ESNR	102		/* Error state with no retract */
 
  /* TO_DO: State transition table definition */
-#define TABLE_COLUMNS 16
+#define TABLE_COLUMNS 17
 
 /* TO_DO: Transition table - type of states defined in separate table */
 static apc_intg transitionTable[][TABLE_COLUMNS] = {
@@ -162,41 +162,41 @@ static apc_intg transitionTable[][TABLE_COLUMNS] = {
 		   //	{    FS,    FS,   FS,   FS,   FS,   FS,   FS}, // S6: ASNR (ES)
 		   //	{    FS,    FS,   FS,   FS,   FS,   FS,   FS},  // S7: ASWR (ER)
 
-/*  [A-z] ,[0-9],    ' ,   " ,  {   ,    } ,  #   ,  .  ,  ^  , +   ,   _  ,   (   ,   )   , Other  ,    \e    ,    SEOF}
-	, L(0), D(1), SQ(2),DQ(3), LC(4), RC(5), SC(6), P(7), E(8), S(9), U(10), OP(11), CP(12),   O(13), sigma(14), EOL(15)} */
+/*  [A-z] ,[0-9],    ' ,   " ,  {   ,    } ,  #   ,  .  ,  ^  , +/- ,   _  ,   (   ,   )   , Other  ,    \e    ,    SEOF,  \n}
+	, L(0), D(1), SQ(2),DQ(3), LC(4), RC(5), SC(6), P(7), E(8), S(9), U(10), OP(11), CP(12),   O(13), sigma(14), EOF(15), EOS(16)} */
 	/* Edit: State 0 used to allow for an underscore to exist, in order to identify the RE path for VID's, no longer doing this.*/
-	{    1,   10,     7,    5,    20,  ESNR,    22, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR},	//S0: NOAS
-	{    1,    1,     4,    4,     4,     4,     4,    4,    4,    4,     1,      2,      4,       4,         4,   ESWR},	//S1: NOAS
-	{    2,    2,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,     2,   ESNR,      3,    ESNR,         2,   ESWR},	//S2: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S3: ASNR (MNID_T)
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,      FS},	//S4: ASWR (KEY)
-	{    5,    5,     5,    6,     5,     5,     5,    5,    5,    5,     5,      5,      5,       5,         5,   ESWR},	//S5: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S6: ASNR SL_T
-	{    8,    8,  ESNR,    8,     8,     8,     8,    8,    8,    8,     8,      8,      8,       8,         8,   ESWR},	//S7: NOAS
-	{ ESNR, ESNR,     9, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR},	//S8: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S9: ASNR (FPL_T)
-	{   19,   10,    19,   19,    19,    19,    19,   11,   16,   19,    19,     19,     19,      19,        19,   ESWR},	//S10: NOAS
-	{ ESNR, ESNR,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR},	//S11:  NOAS
-	{   13,   12,    13,   13,    13,    13,    13,   13,   14,   13,    13,     13,     13,      13,        13,   ESWR},	//S12: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S13: ASNR (FPL_T)
-	{ ESNR, ESNR,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR,   15,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR},	//S14: NOAS
-	{ ESNR,   24,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR},	//S15: NOAS
-	{ ESNR, ESNR,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR,   17,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR},	//S16: NOAS
-	{   18,   17,    18,   18,    18,    18,    18,   18,   18,   18,    18,     18,     18,      18,        18,   ESWR},	//S17: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S18: ASNR (FPL_T)
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S19: ASNR (IL_T)
-	{   20,   20,    20,   20,    20,    21,    20,   20,   20,   20,    20,     20,     20,      20,        20,   ESWR},	//S20: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S21: ASNR (MLC_T)
-	{   22,   22,    22,   22,    22,    22,    22,   22,   22,   22,    22,     22,     22,      22,        22,   ESWR},	//S22: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S23: ASNR (SLC_T)
-	{   25,   24,    25,   25,    25,    25,    25,   25,   25,   25,    25,     25,     25,      25,        25,   ESWR},	//S24: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S25: ASNR (FPL_T)
-	{   27, ESNR,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR},	//S26: NOAS
-	{   27,   27,     3,    3,     3,     3,     3,    3,    3,    3,     3,      3,      3,       3,         3,   ESWR},	//S27: NOAS
+	{    1,   10,     7,    5,    20,  ESNR,    22, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR,  ESNR},	//S0: NOAS
+	{    1,    1,     4,    4,     4,     4,     4,    4,    4,    4,     1,      2,      4,       4,         4,   ESWR,     4},	//S1: NOAS
+	{    2,    2,  ESNR,    2,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,     2,   ESNR,      3,       2,         2,   ESWR,  ESWR},	//S2: NOAS
+	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S3: ASNR (MNID_T)
+	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S4: ASWR (KEY)
+	{    5,    5,     5,    6,     5,     5,     5,    5,    5,    5,     5,      5,      5,       5,         5,   ESWR,  ESWR},	//S5: NOAS
+	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S6: ASNR SL_T
+	{    8,    8,  ESNR,    8,     8,     8,     8,    8,    8,    8,     8,      8,      8,       8,         8,   ESWR,  ESWR},	//S7: NOAS
+	{ ESNR, ESNR,     9, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR,  ESWR},	//S8: NOAS
+	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S9: ASNR (FPL_T)
+	{   19,   10,    19,   19,    19,    19,    19,   11,   16,   19,    19,     19,     19,      19,        19,   ESWR,    19},	//S10: NOAS
+	{ ESNR,   12,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR,  ESWR},	//S11:  NOAS
+	{ ESWR,   12,  ESWR, ESWR,  ESWR,  ESWR,  ESWR, ESWR,   14, ESWR,  ESWR,   ESWR,   ESWR,    ESWR,        13,   ESWR,    13},	//S12: NOAS
+	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S13: ASNR (FPL_T)
+	{ ESNR, ESNR,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR,   15,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR,  ESWR},	//S14: NOAS
+	{ ESNR,   24,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR,  ESWR},	//S15: NOAS
+	{ ESNR, ESNR,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR,   17,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR,  ESWR},	//S16: NOAS
+	{ ESWR,   17,  ESWR, ESWR,  ESWR,  ESWR,  ESWR, ESWR, ESWR, ESWR,  ESWR,   ESWR,   ESWR,    ESWR,        18,   ESWR,    18},	//S17: NOAS
+	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S18: ASNR (FPL_T)
+	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S19: ASNR (IL_T)
+	{   20,   20,    20,   20,    20,    21,    20,   20,   20,   20,    20,     20,     20,      20,        20,   ESWR,  ESWR},	//S20: NOAS
+	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S21: ASNR (MLC_T)
+	{   22,   22,    22,   22,    22,    22,    22,   22,   22,   22,    22,     22,     22,      22,        22,   ESWR,  ESWR},	//S22: NOAS
+	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S23: ASNR (SLC_T)
+	{   25,   24,    25,   25,    25,    25,    25,   25,   25,   25,    25,     25,     25,      25,        25,   ESWR,    25},	//S24: NOAS
+	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S25: ASNR (FPL_T)
+	{   27, ESNR,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR,  ESWR},	//S26: NOAS
+	{   27,   27,     3,    3,     3,     3,     3,    3,    3,    3,     3,      3,      3,       3,         3,   ESWR,     3},	//S27: NOAS
 	/*Removing the VID because of issues with trying to identify the first token (_) and keeping logic for the rest of the chars*/
 	//{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S28: ASNR (VID)
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S29: ASWR (ES)
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS}	//S30: ASNR (ER)
+	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S29: ASWR (ES)
+	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS}	//S30: ASNR (ER)
 };
 
 /* Define accepting states types */
@@ -337,7 +337,7 @@ Language keywords
 */
 
 /* TO_DO: Define the number of Keywords from the language */
-#define KWT_SIZE 10
+#define KWT_SIZE 11
 
 /* TO_DO: Define the list of keywords */
 static apc_char* keywordTable[KWT_SIZE] = {
@@ -345,14 +345,15 @@ static apc_char* keywordTable[KWT_SIZE] = {
 	"int",
 	"float",
 	"string",
-//	"char",
+	//"char",
 	"if",
 	"elif",
 	"else",	
 	"return",
 	"do",
 	"break",
-	"def"
+	"def",
+	"print"
 };
 
 /* NEW SECTION: About indentation */

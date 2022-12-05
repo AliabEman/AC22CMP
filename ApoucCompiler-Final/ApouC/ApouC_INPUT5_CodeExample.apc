@@ -1,0 +1,22 @@
+# ApouC Example 4:
+
+i = 2
+a = 4
+sum008 = 1
+text = ''
+i = i + 2
+a = a * i/0.5
+sum008 = sum008 + a - 1
+if text == '':
+  text = 'prog' + 'ram'
+  print(text)
+else:
+  text = text + 'ram'
+print("\* This is a program -:)-<-<-- \*")
+if (text == "program" and sum008 == 32.0):
+  print(sum008)
+
+#Should print:
+	# program
+	# \* This is a program -:)-<-<-- \*
+	# 32.0

@@ -133,42 +133,54 @@ Token tokenizer(apc_void) {
 
 		/* Cases for spaces */
 		case ' ':
+			break;
 		case '\t':
+			currentToken.code = INDENT;
+			return currentToken;
 		case '\f':
 			break;
 		case '\n':
+			//currentToken.code = EOS_T;
 			line++;		
 			break;
 		/* Cases for symbols */
 		case '\'':
 			currentToken.code = SQ_T;
 			return currentToken;
+
 		case '\"':
 			currentToken.code = DQ_T;
-			return currentToken;
+			break;
+
 		case '.': 
 			currentToken.code = PERIOD_T;
-			return currentToken;		
+			break;
 		case '^':
 			currentToken.code = EXP_T;
 			return currentToken;
+
 		case '+':
 			currentToken.code = SIGNP_T;
 			return currentToken;
+
 		case '-':
 			currentToken.code = SIGNN_T;
 			return currentToken;
 		case '_':
 			currentToken.code = U_T;
 			return currentToken;
+
 		case '(':
 			currentToken.code = OP_T;
 			return currentToken;
+	
 		case ')':
 			currentToken.code = CP_T;
 			return currentToken;
+
 		/* Comments */
 		case '{': //multiline comments
+			currentToken.code = LC_T;
 			newc = readerGetChar(sourceBuffer);
 			do {
 				c = readerGetChar(sourceBuffer);
@@ -181,16 +193,18 @@ Token tokenizer(apc_void) {
 				}
 
 			} while (c != '}' && c != CHARSEOF0 && c != CHARSEOF255);
+			currentToken.code = RC_T;
 			break;
+
 		case '#': //Single Line comments
 			newc = readerGetChar(sourceBuffer);
 			do {
 				c = readerGetChar(sourceBuffer);
-				if (c == CHARSEOF0 || c == CHARSEOF255 || c == EOL_T) {
+				if (c == CHARSEOF0 || c == CHARSEOF255) {
 					readerRetract(sourceBuffer);
-					return currentToken; //removed comment 
+					//return currentToken; //removed comment 
 				}
-			} while (c != '\n' && c != CHARSEOF0 && c != CHARSEOF255);
+			} while (c != '\n' && c != CHARSEOF0 && c != CHARSEOF255 && ' ');
 			break;
 		/* Cases for END OF FILE */
 		case CHARSEOF0:
@@ -224,6 +238,7 @@ Token tokenizer(apc_void) {
 				readerRetract(sourceBuffer);
 			lexEnd = readerGetPosRead(sourceBuffer);
 			lexLength = lexEnd - lexStart;
+
 			lexemeBuffer = readerCreate((apc_intg)lexLength + 2, 0, MODE_FIXED);
 			if (!lexemeBuffer) {
 				fprintf(stderr, "Scanner error: Can not create buffer\n");
@@ -298,6 +313,8 @@ apc_intg nextState(apc_intg state, apc_char c) { //transform the char c into a c
 
 /* Adjust the logic to return next column in TT */
 /*	[A-z](0), [0-9](1),	_(2), &(3), "(4), SEOF(5), other(6) */
+/*  [A-z] ,[0-9],    ' ,   " ,  {   ,    } ,  #   ,  .  ,  ^  , +-  ,   _  ,   (   ,   )   , Other  ,    \e    ,    SEOF}
+	, L(0), D(1), SQ(2),DQ(3), LC(4), RC(5), SC(6), P(7), E(8), S(9), U(10), OP(11), CP(12),   O(13), sigma(14), EOF(15)} */
 
 apc_intg nextClass(apc_char c) {
 	apc_intg val = -1;
@@ -344,6 +361,9 @@ apc_intg nextClass(apc_char c) {
 	case CHARSEOF0:
 	case CHARSEOF255:
 		val = 15;
+		break;
+	case EOS_T:
+		val = 16;
 		break;
 	default:
 		if (isalpha(c))
@@ -425,13 +445,12 @@ Token funcID(apc_char lexeme[]) {
 
 	else {
 		//currentToken = funcKEY(lexeme);
-		currentToken.code = MNID_T;
+		currentToken.code = VID_T;
 		strncpy(currentToken.attribute.idLexeme, lexeme, VID_LEN);
 		currentToken.attribute.idLexeme[VID_LEN] = CHARSEOF0;
 	}
 
 //	switch (lastch) {
-//switch (firstch) {
 //		case MNIDPREFIX:
 
 //			currentToken.code = MNID_T;
@@ -499,14 +518,14 @@ Token funcKEY(apc_char lexeme[]) {
 	Token currentToken = { 0 };
 	apc_intg kwindex = -1, j = 0;
 	for (j = 0; j < KWT_SIZE; j++)
-		if (!strcmp(lexeme, &keywordTable[j][0]))
+		if (!strcmp(lexeme, &keywordTable[j]))
 			kwindex = j;
 	if (kwindex != -1) {
 		currentToken.code = KEY_T;
 		currentToken.attribute.codeType = kwindex;
 	}
 	else {
-		currentToken = funcErr(lexeme);
+		currentToken = funcID(lexeme);
 	}
 	return currentToken;
 }
@@ -563,8 +582,19 @@ apc_void printToken(Token t) {
 		printf("IL_T\t\t%d\n", t.attribute.intValue);
 		break;
 
+	case SQ_T:
+		printf("SQ_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+	case FPL_T:
+		printf("FPL_T\t\t%.4f\n", t.attribute.floatValue);
+		break;
+	case SEOF_T:
+		printf("SEOF_T\t\t%d\t\n", t.attribute.seofType);
+		break;
 		//Broken Token Cases:
-	
+	case CL_T:
+		printf("CL_T\t\t%s\n", t.attribute.idLexeme);
+		break;	
 	case RTE_T:
 		printf("RTE_T\t\t%s", t.attribute.errLexeme);
 		/* Call here run-time error handling component */
@@ -577,17 +607,15 @@ apc_void printToken(Token t) {
 	case ERR_T:
 		printf("ERR_T\t\t%s\n", t.attribute.errLexeme);
 		break;
-	case SEOF_T:
-		printf("SEOF_T\t\t%d\t\n", t.attribute.seofType);
-		break;
-	case EOS_T:
-		printf("EOS_T\t\t%s\n", t.attribute.idLexeme);
-		break;
+
+//	case EOS_T:
+//		printf("EOS_T\t\t%s\n", t.attribute.idLexeme);
+//		break;
 
 
-	case MNID_T:
-		printf("MNID_T\t\t%s\n", t.attribute.idLexeme);
-		break;
+//	case MNID_T:
+//		printf("MNID_T\t\t%s\n", t.attribute.idLexeme);
+//		break;
 	case VID_T:
 		printf("VID_T\t\t%s\n", t.attribute.idLexeme);
 		break;
@@ -596,22 +624,17 @@ apc_void printToken(Token t) {
 		printf("STR_T\t\t%d\t ", (apc_intg)t.attribute.codeType);
 		printf("%s\n", readerGetContent(stringLiteralTable, (apc_intg)t.attribute.codeType));
 		break;
-	case CL_T:
-		printf("CL_T\t\t%s\n", t.attribute.idLexeme);
-		break;
-	case FPL_T:
-		printf("FPL_T\t\t%s\n", t.attribute.idLexeme);
-		break;
+
+
 
 	case MLC_T:
 		printf("MLC_T\t\t%s\n", t.attribute.idLexeme);
 		break;
-	case SLC_T:
-		printf("SLC_T\t\t%s\n", t.attribute.idLexeme);
-		break;
+
 	case LC_T:
 		printf("LPR_T\t\t%s\n", t.attribute.idLexeme);
 		break;
+
 /*	case LC_T:
 		printf("LPR_T\n");
 		break;

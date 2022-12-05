@@ -1,13 +1,12 @@
-if 33
-int 
+
+int 26
+44
+
 float
 else 647
 string
-
 elif
 return
 do
 break
-def
-
-d33\n
+def if
