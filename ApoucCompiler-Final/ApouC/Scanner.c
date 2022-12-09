@@ -135,22 +135,36 @@ Token tokenizer(apc_void) {
 		case ' ':
 			break;
 		case '\t':
-			currentToken.code = INDENT;
+			currentToken.code = INDENT_T;
+			return currentToken;
+		case '=':
+			currentToken.code = EQUALS_T;
+			return currentToken;
+
+		case ':':
+			currentToken.code = LOGICSTMT_T;
 			return currentToken;
 		case '\f':
 			break;
 		case '\n':
-			//currentToken.code = EOS_T;
+			currentToken.code = EOS_T;
 			line++;		
+			return currentToken;
 			break;
 		/* Cases for symbols */
-		case '\'':
-			currentToken.code = SQ_T;
-			return currentToken;
+//		case '\'':
+//			currentToken.code = SQ_T;
+//			return currentToken;
 
-		case '\"':
-			currentToken.code = DQ_T;
-			break;
+//		case '\"':
+//			currentToken.code = DQ_T;
+//			break;
+
+	//	case '=':
+		//	currentToken.code = ASSIGN_T;
+			//currentToken.attribute.charValue = ASSIGN_T;
+			//			break;
+			//return currentToken;
 
 		case '.': 
 			currentToken.code = PERIOD_T;
@@ -176,11 +190,13 @@ Token tokenizer(apc_void) {
 	
 		case ')':
 			currentToken.code = CP_T;
+			currentToken.attribute.charValue = CP_T;
+//			break;
 			return currentToken;
 
 		/* Comments */
 		case '{': //multiline comments
-			currentToken.code = LC_T;
+			//currentToken.code = LC_T;
 			newc = readerGetChar(sourceBuffer);
 			do {
 				c = readerGetChar(sourceBuffer);
@@ -193,10 +209,11 @@ Token tokenizer(apc_void) {
 				}
 
 			} while (c != '}' && c != CHARSEOF0 && c != CHARSEOF255);
-			currentToken.code = RC_T;
+			//currentToken.code = RC_T;
 			break;
 
 		case '#': //Single Line comments
+			//currentToken.code = SC_T;
 			newc = readerGetChar(sourceBuffer);
 			do {
 				c = readerGetChar(sourceBuffer);
@@ -225,7 +242,7 @@ Token tokenizer(apc_void) {
 		/* TO_DO: Adjust / check the logic for your language */
 
 		default: // general case
-			state = nextState(state, c); //c is taken from the reader
+			state = nextState(state, c);
 			lexStart = readerGetPosRead(sourceBuffer) - 1;
 			readerSetMark(sourceBuffer, lexStart);
 			int pos = 0;
@@ -238,7 +255,6 @@ Token tokenizer(apc_void) {
 				readerRetract(sourceBuffer);
 			lexEnd = readerGetPosRead(sourceBuffer);
 			lexLength = lexEnd - lexStart;
-
 			lexemeBuffer = readerCreate((apc_intg)lexLength + 2, 0, MODE_FIXED);
 			if (!lexemeBuffer) {
 				fprintf(stderr, "Scanner error: Can not create buffer\n");
@@ -319,51 +335,61 @@ apc_intg nextState(apc_intg state, apc_char c) { //transform the char c into a c
 apc_intg nextClass(apc_char c) {
 	apc_intg val = -1;
 	switch (c) {
+
 	case SQ_T: //single quote: for char ID
 		val = 2;
 		break;
 	case DQ_T: //double quote: for string ID
 		val = 3;
 		break;
-	case LC_T: //for left brace in MLC
+//	case LC_T: //for left brace in MLC
+//		val = 4;
+//		break;
+//	case RC_T: //for right brace in MLC
+//		val = 5;
+//		break;
+	case SC_T: //hash for for SLC
 		val = 4;
 		break;
-	case RC_T: //for right brace in MLC
+	case PERIOD_T: // for floating points
 		val = 5;
 		break;
-	case SC_T: //hash for for SLC
+	case EXP_T: //for exponential floats
 		val = 6;
 		break;
-	case PERIOD_T: // for floating points
+	case SIGNP_T: //for exponential floats
 		val = 7;
 		break;
-	case EXP_T: //for exponential floats
-		val = 8;
-		break;
-	case SIGNP_T: //for exponential floats
-		val = 9;
-		break;
 	case SIGNN_T: //for exponential floats
-		val = 9;
+		val = 7;
 		break;
 	case U_T: //underscore for identifying VID's
-		val = 10;
+		val = 8;
 		break;
 	case OP_T: // for MNID's
-		val = 11;
+		val = 9;
 		break;
-	case CP_T: // for MNID's
-		val = 12;
-		break;
+//	case CP_T: // for MNID's
+//		val = 12;
+//		break;
 	case SIGMA_T:
-		val = 14;
+		val = 11;
 		break;
 	case CHARSEOF0:
 	case CHARSEOF255:
-		val = 15;
+		val = 12;
 		break;
-	case EOS_T:
-		val = 16;
+
+	case INDENT_T:
+		val = 13;
+		break;
+
+	case LOGICSTMT_T:
+		val = 14;
+		break;
+
+	case EQUALS_T:
+		val = 14;
 		break;
 	default:
 		if (isalpha(c))
@@ -371,8 +397,9 @@ apc_intg nextClass(apc_char c) {
 		else if (isdigit(c))
 			val = 1;
 		else
-			val = 13;
+			val = 10;
 	}
+
 	return val;
 }
 
@@ -393,7 +420,7 @@ Token funcIL(apc_char lexeme[]) {
 	Token currentToken = { 0 };
 	apc_long tlong;
 	if (lexeme[0] != '\0' && strlen(lexeme) > NUM_LEN) {
-		currentToken = (*finalStateTable[ESNR])(lexeme); 
+		currentToken = (*finalStateTable[29])(lexeme); 
 	}
 	else {
 		tlong = atol(lexeme);
@@ -402,12 +429,11 @@ Token funcIL(apc_char lexeme[]) {
 			currentToken.attribute.intValue = (apc_intg)tlong;
 		}
 		else {
-			currentToken = (*finalStateTable[ESNR])(lexeme); 
+			currentToken = (*finalStateTable[29])(lexeme); 
 		}
 	}
 	return currentToken;
 }
-
 
 
 /*
@@ -423,51 +449,31 @@ Token funcIL(apc_char lexeme[]) {
  ***********************************************************
  */
  /* TO_DO: Adjust the function for ID */
-/* Need to check if ID is a KEYWORD, if not, identify it as a VID*/
+/* Need to check if ID is a MNID, if not, identify it as a KEYWORD/ ERROR*/
+
 
 Token funcID(apc_char lexeme[]) {
 	Token currentToken = { 0 };
 	size_t length = strlen(lexeme);
-//apc_char lastch = lexeme[length - 1];
-//	apc_char firstch = lexeme[0];
+	apc_char lastch = lexeme[length -1];
+	apc_intg isID = APC_FALSE;
+	switch (lastch) {
+	case MNIDPREFIX:
+		currentToken.code = MNID_T;
+		isID = APC_TRUE;
+		break;
 
-	//apc_intg isID = APC_FALSE;
-
-	apc_intg kwindex = -1, j = 0;
-	for (j = 0; j < KWT_SIZE; j++)
-		if (!strcmp(lexeme, &keywordTable[j][0]))
-			kwindex = j;
-	if (kwindex != -1) {
-		currentToken.code = KEY_T;
-		currentToken.attribute.codeType = kwindex;
-		return currentToken;
+	default:
+		// Test Keyword
+		currentToken = funcKEY(lexeme);
+		break;
 	}
-
-	else {
-		//currentToken = funcKEY(lexeme);
-		currentToken.code = VID_T;
+	if (isID == APC_TRUE) {
 		strncpy(currentToken.attribute.idLexeme, lexeme, VID_LEN);
 		currentToken.attribute.idLexeme[VID_LEN] = CHARSEOF0;
 	}
-
-//	switch (lastch) {
-//		case MNIDPREFIX:
-
-//			currentToken.code = MNID_T;
-//			isID = APC_TRUE;
-//			break;
-//		default:
-			// Test Keyword
-//			currentToken = funcKEY(lexeme);
-//			break;
-//	}
-//	if (isID == APC_TRUE) {
-//		strncpy(currentToken.attribute.idLexeme, lexeme, VID_LEN);
-//		currentToken.attribute.idLexeme[VID_LEN] = CHARSEOF0;
-//	}
 	return currentToken;
 }
-
 
 /*
 ************************************************************
@@ -505,7 +511,6 @@ Token funcSL(apc_char lexeme[]) {
 	return currentToken;
 }
 
-
 /*
 ************************************************************
  * This function checks if one specific lexeme is a keyword.
@@ -518,14 +523,15 @@ Token funcKEY(apc_char lexeme[]) {
 	Token currentToken = { 0 };
 	apc_intg kwindex = -1, j = 0;
 	for (j = 0; j < KWT_SIZE; j++)
-		if (!strcmp(lexeme, &keywordTable[j]))
+		if (!strcmp(lexeme, &keywordTable[j][0]))
 			kwindex = j;
 	if (kwindex != -1) {
 		currentToken.code = KEY_T;
 		currentToken.attribute.codeType = kwindex;
 	}
+
 	else {
-		currentToken = funcID(lexeme);
+		currentToken = funcErr(lexeme);
 	}
 	return currentToken;
 }
@@ -562,8 +568,6 @@ Token funcErr(apc_char lexeme[]) {
 }
 
 
-
-
 /*
  ************************************************************
  * The function prints the token returned by the scanner
@@ -573,9 +577,29 @@ Token funcErr(apc_char lexeme[]) {
 apc_void printToken(Token t) {
 	extern apc_char* keywordTable[]; /* link to keyword table in */
 	switch (t.code) {
+
+		/*
+		Operator Token attributes:
+			OP_ADD, OP_SUB, OP_MUL, OP_DIV
+	} AriOperator;
+	typedef enum RelationalOperators { OP_EQ, OP_NE, OP_GT, OP_LT } RelOperator;
+	typedef enum LogicalOperators { OP_AND, OP_OR, OP_NOT } LogOperator;
+	typedef enum SourceEndOfFile {
+		SEOF_0, SEOF_255
+		*/
+
+
 	//Functional Token Cases:
 	case KEY_T:
 		printf("KW_T\t\t%s\n", keywordTable[t.attribute.codeType]);
+		break;
+
+	case INDENT_T:
+		printf("INDENT_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+
+	case EQUALS_T:
+		printf("EQUALS_T\t\t%s\n", t.attribute.idLexeme);
 		break;
 
 	case IL_T:
@@ -591,10 +615,14 @@ apc_void printToken(Token t) {
 	case SEOF_T:
 		printf("SEOF_T\t\t%d\t\n", t.attribute.seofType);
 		break;
+	case LOGICSTMT_T:
+		printf("LOGICSTMT_T\t\t%s\n", t.attribute.idLexeme);
+		break;
 		//Broken Token Cases:
 	case CL_T:
-		printf("CL_T\t\t%s\n", t.attribute.idLexeme);
-		break;	
+		printf("CL_T\t\t%d\t ", (apc_intg)t.attribute.codeType);
+		printf("%s\n", readerGetContent(stringLiteralTable, (apc_intg)t.attribute.codeType));
+		break;
 	case RTE_T:
 		printf("RTE_T\t\t%s", t.attribute.errLexeme);
 		/* Call here run-time error handling component */
@@ -608,14 +636,14 @@ apc_void printToken(Token t) {
 		printf("ERR_T\t\t%s\n", t.attribute.errLexeme);
 		break;
 
-//	case EOS_T:
-//		printf("EOS_T\t\t%s\n", t.attribute.idLexeme);
-//		break;
+	case EOS_T:
+		printf("EOS_T\t\t%s\n", t.attribute.idLexeme);
+		break;
 
 
-//	case MNID_T:
-//		printf("MNID_T\t\t%s\n", t.attribute.idLexeme);
-//		break;
+	case MNID_T:
+		printf("MNID_T\t\t%s\n", t.attribute.idLexeme);
+		break;
 	case VID_T:
 		printf("VID_T\t\t%s\n", t.attribute.idLexeme);
 		break;
@@ -626,14 +654,18 @@ apc_void printToken(Token t) {
 		break;
 
 
+	
+		break;
 
-	case MLC_T:
-		printf("MLC_T\t\t%s\n", t.attribute.idLexeme);
+
+	case CP_T:
+		printf("CP_T\t\t%s\n", t.attribute.idLexeme);
 		break;
 
 	case LC_T:
 		printf("LPR_T\t\t%s\n", t.attribute.idLexeme);
 		break;
+
 
 /*	case LC_T:
 		printf("LPR_T\n");
@@ -655,6 +687,7 @@ apc_void printToken(Token t) {
 		break;
 */
 
+
 	default:
 		printf("Scanner error: invalid token code: %d\n", t.code);
 	}
@@ -666,6 +699,25 @@ TO_DO: (If necessary): HERE YOU WRITE YOUR ADDITIONAL FUNCTIONS (IF ANY).
 
 Token funcCL(apc_char lexeme[]) {
 	Token currentToken = { 0 };
+	apc_intg i = 0, len = (apc_intg)strlen(lexeme);
+	currentToken.attribute.contentChar = readerGetPosWrte(stringLiteralTable);
+	for (i = 1; i < len - 1; i++) {
+		if (lexeme[i] == '\n')
+			line++;
+		if (!readerAddChar(stringLiteralTable, lexeme[i])) {
+			currentToken.code = RTE_T;
+			strcpy(currentToken.attribute.errLexeme, "Run Time Error:");
+			errorNumber = RTE_CODE;
+			return currentToken;
+		}
+	}
+	if (!readerAddChar(stringLiteralTable, CHARSEOF0)) {
+		currentToken.code = RTE_T;
+		strcpy(currentToken.attribute.errLexeme, "Run Time Error:");
+		errorNumber = RTE_CODE;
+		return currentToken;
+	}
+	currentToken.code = CL_T;
 	return currentToken;
 }
 
@@ -680,6 +732,23 @@ Token funcSLC(apc_char lexeme[]) {
 
 }
 
+Token funcVar(apc_char lexeme[]) {
+	Token currentToken = { 0 };
+	apc_intg kwindex = -1, j = 0;
+	for (j = 0; j < KWT_SIZE; j++)
+		if (!strcmp(lexeme, &keywordTable[j][0]))
+			kwindex = j;
+	if (kwindex != -1) {
+		currentToken.code = KEY_T;
+		currentToken.attribute.codeType = kwindex;
+	}
+
+	else {
+		currentToken = funcErr(lexeme);
+	}
+	return currentToken;
+}
+
 /* Floating point function taken from week 10 demo, hybridized to acknowledge
 ApouC compiler floating point numbers */
 
@@ -691,7 +760,7 @@ Token funcFPL(apc_char lexeme[]) {
 		currentToken.attribute.floatValue = (apc_real)tDouble;
 	}
 	else {
-		currentToken = (*finalStateTable[ESNR])(lexeme);
+		currentToken = (*finalStateTable[29])(lexeme);
 	}
 
 	return currentToken;

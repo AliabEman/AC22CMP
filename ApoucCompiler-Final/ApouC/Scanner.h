@@ -47,11 +47,11 @@
 enum TOKENS {
 
 	ERR_T,		/*  0: Error token */ //0
-	EOS_T,		/*  8: End of statement (\n) */ //1
+	EOS_T,		/*  1 End of statement (\n) */ //1
 	RTE_T,		/*  9: Run-time error token */ //2
 	SEOF_T,		/* 11: Source end-of-file token */ //3
 	//added by me:
-	//MNID_T, /* Method Name Identifier Token */ //4
+	MNID_T, /* Method Name Identifier Token */ //4
 	KEY_T, /* Keyword Token*/ //5
 	SL_T, /*String Literal */ //6
 	CL_T, /*Character Literal */ //7 
@@ -59,7 +59,11 @@ enum TOKENS {
 	IL_T, /*Integer Literal */ //9
 	MLC_T, /*Multi-Line Comment Token*/ //10 
 	SLC_T, /*Single-Line Comment Token*/ //11
-	VID_T /*Variable Identifier Token*/ //12
+	VID_T, /*Variable Identifier Token*/ //12
+	INDENT_T, /*13 Indentation*/
+	EQUALS_T, /* Assignment operator*/
+	LOGICSTMT_T, /*Logic statement terminal operator */
+	OP_T
 };
 
 /* TO_DO: Operators token attributes */
@@ -119,7 +123,11 @@ typedef struct Token {
 /* TO_DO: Define lexeme FIXED classes */
 /* These constants will be used on nextClass */
 
+
+
+
 #define SQ_T		'\''/* 2: Single Quote Token ['] */
+
 #define DQ_T		'\"'/* 3: Double Quote Token ["] */
 #define LC_T		'{'	/* 4: Left Parenthesis Token [{] */ //MLC
 #define RC_T		'}'	/* 5: Right Parenthesis Token [}] */ //MLC
@@ -135,11 +143,11 @@ typedef struct Token {
 //#define O_T		!(LETTER || DIGIT || SQ_T || DQ_T || LC_T || RC_T || SC_T || PERIOD || EXP || U_T || OPENP || CLOSEP || EOL_T)
 // need to watch for this #define OTHER	!(LETTER || DIGIT || SQ_T || Q_T || LC_T || RC_T || SC_T || P_T || E_T || S_T || U_T || OP_T || CP_T)/* 13: Other Tokens */
 #define SIGMA_T		' '	/* 14: Empty Token */
-#define EOS_T		'\n' /* 15: End of Line, New-Line) */
+
 
 
 /* These constants will be used on VID / MID function */
-#define MNIDPREFIX '_' /* Same as token 10, underscore token*/
+#define MNIDPREFIX '(' /* Same as token 10, underscore token*/
 
 /* TO_DO: Error states and illegal state */
 #define FS		100		/* Final / Illegal state */
@@ -147,7 +155,7 @@ typedef struct Token {
 #define ESNR	102		/* Error state with no retract */
 
  /* TO_DO: State transition table definition */
-#define TABLE_COLUMNS 17
+#define TABLE_COLUMNS 14
 
 /* TO_DO: Transition table - type of states defined in separate table */
 static apc_intg transitionTable[][TABLE_COLUMNS] = {
@@ -161,42 +169,59 @@ static apc_intg transitionTable[][TABLE_COLUMNS] = {
 		   //	{    FS,    FS,   FS,   FS,   FS,   FS,   FS}, // S5: ASNR (SL)
 		   //	{    FS,    FS,   FS,   FS,   FS,   FS,   FS}, // S6: ASNR (ES)
 		   //	{    FS,    FS,   FS,   FS,   FS,   FS,   FS},  // S7: ASWR (ER)
+	
+	/*
+	Edits:
+	Removing terminators that close the identifier
+	Removing Column 12 (Closing Parenthesis): We are identifying our MNID from the left
+	Removing Column 4 (left brace) and column 5 (right brace): Do not need to create a Lexeme that encapsulated every single character within the { } brackets,
+	the purpose is to recognize when to begin the recognition of a segment and its ending using the Parser..?
 
-/*  [A-z] ,[0-9],    ' ,   " ,  {   ,    } ,  #   ,  .  ,  ^  , +/- ,   _  ,   (   ,   )   , Other  ,    \e    ,    SEOF,  \n}
-	, L(0), D(1), SQ(2),DQ(3), LC(4), RC(5), SC(6), P(7), E(8), S(9), U(10), OP(11), CP(12),   O(13), sigma(14), EOF(15), EOS(16)} */
+	We look to retract the identifiers that access their final state INCLUDING the token that leads to that situation:
+	Ex of FSWR: MNID -> print( -> why? because ( brings us to final state
+	We look to NOT retract identifiers that access their final state NOT including the token that leads to that situation:\
+	Ex of FSNR: VID -> aliab<\n> -> why? because \n brought us to our final state, does NOT represent the VID.
+
+	Changes to Transition Table, new count:
+	[A-z] ,[0-9],    ' ,   " ,  #   ,  .  ,  ^  , +/- ,   _  ,   (   ,Other  ,    \e    ,    SEOF,  \n    }
+	, L(0), D(1), SQ(2),DQ(3), SC(4), P(5), E(6), S(7), U(8) , OP( 9),  O(10), sigma(11), EOF(12), EOS(13)}
+	*/
+
+/*  [A-z] ,[0-9],    ' ,   " ,  #   ,  .  ,  ^  , +/- ,   _  ,   (   ,Other  ,    \e    ,    SEOF,  \n    }
+	, L(0), D(1), SQ(2),DQ(3), SC(6), P(7), E(8), S(9), U(10), OP(11),  O(13), sigma(14), EOF(15), EOS(16)} */
 	/* Edit: State 0 used to allow for an underscore to exist, in order to identify the RE path for VID's, no longer doing this.*/
-	{    1,   10,     7,    5,    20,  ESNR,    22, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR,  ESNR},	//S0: NOAS
-	{    1,    1,     4,    4,     4,     4,     4,    4,    4,    4,     1,      2,      4,       4,         4,   ESWR,     4},	//S1: NOAS
-	{    2,    2,  ESNR,    2,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,     2,   ESNR,      3,       2,         2,   ESWR,  ESWR},	//S2: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S3: ASNR (MNID_T)
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S4: ASWR (KEY)
-	{    5,    5,     5,    6,     5,     5,     5,    5,    5,    5,     5,      5,      5,       5,         5,   ESWR,  ESWR},	//S5: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S6: ASNR SL_T
-	{    8,    8,  ESNR,    8,     8,     8,     8,    8,    8,    8,     8,      8,      8,       8,         8,   ESWR,  ESWR},	//S7: NOAS
-	{ ESNR, ESNR,     9, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR,  ESWR},	//S8: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S9: ASNR (FPL_T)
-	{   19,   10,    19,   19,    19,    19,    19,   11,   16,   19,    19,     19,     19,      19,        19,   ESWR,    19},	//S10: NOAS
-	{ ESNR,   12,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR,  ESWR},	//S11:  NOAS
-	{ ESWR,   12,  ESWR, ESWR,  ESWR,  ESWR,  ESWR, ESWR,   14, ESWR,  ESWR,   ESWR,   ESWR,    ESWR,        13,   ESWR,    13},	//S12: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S13: ASNR (FPL_T)
-	{ ESNR, ESNR,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR,   15,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR,  ESWR},	//S14: NOAS
-	{ ESNR,   24,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR,  ESWR},	//S15: NOAS
-	{ ESNR, ESNR,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR,   17,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR,  ESWR},	//S16: NOAS
-	{ ESWR,   17,  ESWR, ESWR,  ESWR,  ESWR,  ESWR, ESWR, ESWR, ESWR,  ESWR,   ESWR,   ESWR,    ESWR,        18,   ESWR,    18},	//S17: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S18: ASNR (FPL_T)
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S19: ASNR (IL_T)
-	{   20,   20,    20,   20,    20,    21,    20,   20,   20,   20,    20,     20,     20,      20,        20,   ESWR,  ESWR},	//S20: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S21: ASNR (MLC_T)
-	{   22,   22,    22,   22,    22,    22,    22,   22,   22,   22,    22,     22,     22,      22,        22,   ESWR,  ESWR},	//S22: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S23: ASNR (SLC_T)
-	{   25,   24,    25,   25,    25,    25,    25,   25,   25,   25,    25,     25,     25,      25,        25,   ESWR,    25},	//S24: NOAS
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S25: ASNR (FPL_T)
-	{   27, ESNR,  ESNR, ESNR,  ESNR,  ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,    ESNR,      ESNR,   ESWR,  ESWR},	//S26: NOAS
-	{   27,   27,     3,    3,     3,     3,     3,    3,    3,    3,     3,      3,      3,       3,         3,   ESWR,     3},	//S27: NOAS
+	{    1,   10,     7,    5,    22, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,      ESNR,   ESWR,  ESWR},	//S0: NOAS
+	{    1,    1,     4,    4,     4,    4,    4,    4,     1,      3,      4,         4,   ESWR,     4},	//S1: NOAS
+	{    2,    2,  ESNR,    2,  ESNR, ESNR, ESNR, ESNR,     2,   ESNR,      2,         4,   ESWR,     4},	//S2: NOAS
+	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S3: ASNR (MNID_T)
+	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S4: ASWR (KEY)
+	{    5,    5,     5,    6,     5,    5,    5,    5,     5,      5,      5,         5,   ESWR,  ESWR},	//S5: NOAS
+	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S6: ASNR SL_T
+	{    8,    8,  ESWR, ESWR,  ESWR,    8,    8,    8,     8,      8,      8,      ESWR,   ESWR,  ESWR},	//S7: NOAS ///Edit: added opportunity to have empty char -> '' is allowed
+	{ ESNR, ESNR,     9, ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,      ESNR,   ESWR,  ESWR},	//S8: NOAS
+	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S9: ASNR (CLL_T)
+	{   19,   10,    19,   19,    19,   11,   16,   19,    19,     19,     19,        19,   ESWR,    19},	//S10: NOAS
+	{ ESNR,   12,  ESNR, ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,      ESNR,   ESWR,  ESWR},	//S11:  NOAS
+	{ ESWR,   12,  ESWR, ESWR,  ESWR, ESWR,   14, ESWR,  ESWR,   ESWR,   ESWR,        13,   ESWR,    13},	//S12: NOAS
+	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S13: ASNR (FPL_T)
+	{ ESNR, ESNR,  ESNR, ESNR,  ESNR, ESNR, ESNR,   15,  ESNR,   ESNR,   ESNR,      ESNR,   ESWR,  ESWR},	//S14: NOAS
+	{ ESNR,   24,  ESNR, ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,      ESNR,   ESWR,  ESWR},	//S15: NOAS
+	{ ESNR, ESNR,  ESNR, ESNR,  ESNR, ESNR, ESNR,   17,  ESNR,   ESNR,   ESNR,      ESNR,   ESWR,  ESWR},	//S16: NOAS
+	{ ESWR,   17,  ESWR, ESWR,  ESWR, ESWR, ESWR, ESWR,  ESWR,   ESWR,   ESWR,        18,   ESWR,    18},	//S17: NOAS
+	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S18: ASNR (FPL_T)
+	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S19: ASNR (IL_T)
+	{   20,   20,    20,   20,    20,   20,   20,   20,    20,     20,     20,        20,   ESWR,  ESWR},	//S20: NOAS
+	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S21: ASNR (MLC_T)
+	{   22,   22,    22,   22,    22,   22,   22,   22,    22,     22,     22,        22,   ESWR,    23},	//S22: NOAS
+	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S23: ASNR (SLC_T)
+	{   25,   24,    25,   25,    25,   25,   25,   25,    25,     25,     25,        25,   ESWR,    25},	//S24: NOAS
+	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S25: ASNR (FPL_T)
+	{   27, ESNR,  ESNR, ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,      ESNR,   ESWR,  ESWR},	//S26: NOAS
+	{   27,   27,     3,    3,     3,    3,    3,    3,     3,      3,      3,         3,   ESWR,     3},	//S27: NOAS
 	/*Removing the VID because of issues with trying to identify the first token (_) and keeping logic for the rest of the chars*/
 	//{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS},	//S28: ASNR (VID)
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS},	//S29: ASWR (ES)
-	{   FS,   FS,    FS,   FS,    FS,    FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,      FS,        FS,     FS,    FS}	//S30: ASNR (ER)
+	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,    FS,     FS,     FS,      FS,      FS,     FS,    FS},	//S29: ASWR (ES)
+	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,    FS,     FS,     FS,      FS,      FS,     FS,    FS}	//S30: ASNR (ER)
 };
 
 /* Define accepting states types */
@@ -221,20 +246,20 @@ static apc_intg stateType[] = { //some states are not final, some are final
 	FSNR, /* 03 (MNID) - Method Name Identifier */
 	FSWR, /* 04 (KEY) - Keyword */ //change made: KEY represents Keywords AND VID's
 	NOFS, /* 05 */
-	FSWR, /* 06 (SL_T) - String Literal Token */
+	FSNR, /* 06 (SL_T) - String Literal Token */
 	NOFS, /* 07 */
 	NOFS, /* 08 */
-	FSWR, /* 09 (CL_T) - Character Literal Token (Ex: 'x' or '9') */
+	FSNR, /* 09 (CL_T) - Character Literal Token (Ex: 'x' or '9') */
 	NOFS, /* 10 */
 	NOFS, /* 11 */
 	NOFS, /* 12 */
-	FSNR, /* 13 (FPL_T) - Floating Point Literal (Ex: 123.456) */
+	FSWR, /* 13 (FPL_T) - Floating Point Literal (Ex: 123.456) */
 	NOFS, /* 14 */
 	NOFS, /* 15 */
 	NOFS, /* 16 */
 	NOFS, /* 17 */
-	FSNR, /* 18 (FPL_T) - Floating Point Literal (Ex: 4e+33 OR 4e-33) */
-	FSNR, /* 19 (IL_T) - Integer Literal (Ex: 123456) */
+	FSWR, /* 18 (FPL_T) - Floating Point Literal (Ex: 4e+33 OR 4e-33) */
+	FSWR, /* 19 (IL_T) - Integer Literal (Ex: 123456) */
 	NOFS, /* 20 */
 	FSNR, /* 21 (MLC_T) - Multiline Comment */
 	NOFS, /* 22 */
@@ -269,16 +294,18 @@ Automata definitions
 typedef Token(*PTR_ACCFUN)(apc_char* lexeme);
 
 /* Declare accepting states functions */
-Token funcSL	(apc_char lexeme[]); //string literal function
-Token funcID	(apc_char lexeme[]); //identifier function
-Token funcKEY	(apc_char lexeme[]); //keyword function
-Token funcErr	(apc_char lexeme[]); //error function
-Token funcCL	(apc_char lexeme[]); //character literal function
-Token funcFPL	(apc_char lexeme[]); //floating point literal function
-Token funcMLC	(apc_char lexeme[]); //multiline comment function
-Token funcSLC	(apc_char lexeme[]); //single line comment function
-Token funcIL	(apc_char lexeme[]); //integer literal function
-Token funcFPL	(apc_char lexeme[]); //floating point literal function
+Token funcSL	(apc_char lexeme[]);	//string literal function
+Token funcID	(apc_char lexeme[]);	//identifier function
+Token funcKEY	(apc_char lexeme[]);	//keyword function
+Token funcErr	(apc_char lexeme[]);	//error function
+Token funcCL	(apc_char lexeme[]);	//character literal function
+Token funcFPL	(apc_char lexeme[]);	//floating point literal function
+Token funcMLC	(apc_char lexeme[]);	//multiline comment function
+Token funcSLC	(apc_char lexeme[]);	//single line comment function
+Token funcIL	(apc_char lexeme[]);	//integer literal function
+Token funcFPL	(apc_char lexeme[]);	//floating point literal function
+Token funcVar	(apc_char lexeme[]);	//variable identifier function
+Token funcArit	(apc_char lexeme[]);	//arithmetic expression function
 
 /* 
  * Accepting function (action) callback table (array) definition 
@@ -337,7 +364,7 @@ Language keywords
 */
 
 /* TO_DO: Define the number of Keywords from the language */
-#define KWT_SIZE 11
+#define KWT_SIZE 12
 
 /* TO_DO: Define the list of keywords */
 static apc_char* keywordTable[KWT_SIZE] = {
@@ -345,7 +372,7 @@ static apc_char* keywordTable[KWT_SIZE] = {
 	"int",
 	"float",
 	"string",
-	//"char",
+	"char",
 	"if",
 	"elif",
 	"else",	
@@ -353,7 +380,7 @@ static apc_char* keywordTable[KWT_SIZE] = {
 	"do",
 	"break",
 	"def",
-	"print"
+	"print",
 };
 
 /* NEW SECTION: About indentation */
