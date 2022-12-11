@@ -1,0 +1,5 @@
+#Comments involved, this is 
+#A basic greeting function
+def greeting():
+	print(2245)
+greeting()

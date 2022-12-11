@@ -173,13 +173,6 @@ Token tokenizer(apc_void) {
 			currentToken.code = EXP_T;
 			return currentToken;
 
-		case '+':
-			currentToken.code = SIGNP_T;
-			return currentToken;
-
-		case '-':
-			currentToken.code = SIGNN_T;
-			return currentToken;
 		case '_':
 			currentToken.code = U_T;
 			return currentToken;
@@ -223,6 +216,69 @@ Token tokenizer(apc_void) {
 				}
 			} while (c != '\n' && c != CHARSEOF0 && c != CHARSEOF255 && ' ');
 			break;
+
+
+		/* Cases for Arithmetic Operators */
+
+		case '+':
+			newc = readerGetChar(sourceBuffer);
+			//case 1
+			if (isdigit(newc))
+			currentToken.code = SIGNP_T;
+			//case 2
+			if (newc == ' ') {
+				currentToken.code = OP_ADD_T;
+				currentToken.attribute.arithmeticOperator = OP_ADD;
+			}
+			return currentToken;
+		case '-':
+			newc = readerGetChar(sourceBuffer);
+			//case 1
+			if (isdigit(newc))
+			currentToken.code = SIGNN_T;
+			//case 2
+			if (newc == ' ') {
+			currentToken.code = OP_SUB_T;
+			currentToken.attribute.arithmeticOperator = OP_SUB;
+			}
+			return currentToken;
+		case '*':
+			currentToken.code = OP_MUL_T;
+			currentToken.attribute.arithmeticOperator = OP_MUL;
+			return currentToken;
+		case '/':
+			currentToken.code = OP_DIV_T;
+			currentToken.attribute.arithmeticOperator = OP_DIV;
+			return currentToken;
+		case '==':
+			currentToken.code = OP_EQ_T;
+			currentToken.attribute.relationalOperator = OP_EQ;
+			return currentToken;
+		case '!=':
+			currentToken.code = OP_NE_T;
+			currentToken.attribute.relationalOperator = OP_NE;
+			return currentToken;
+		case '>':
+			currentToken.code = OP_GT_T;
+			currentToken.attribute.relationalOperator = OP_GT;
+			return currentToken;
+		case '<':
+			currentToken.code = OP_LT_T;
+			currentToken.attribute.relationalOperator = OP_LT;
+			return currentToken;
+		case '&&':
+			currentToken.code = OP_AND_T;
+			currentToken.attribute.logicalOperator = OP_AND;
+			return currentToken;
+		case '||':
+			currentToken.code = OP_OR_T;
+			currentToken.attribute.logicalOperator = OP_OR;
+			return currentToken;
+		case '!':
+			currentToken.code = OP_NOT_T;
+			currentToken.attribute.logicalOperator = OP_NOT;
+			return currentToken;
+
 		/* Cases for END OF FILE */
 		case CHARSEOF0:
 			currentToken.code = SEOF_T;
@@ -328,9 +384,9 @@ apc_intg nextState(apc_intg state, apc_char c) { //transform the char c into a c
 /* TO_DO: Use your column configuration */
 
 /* Adjust the logic to return next column in TT */
-/*	[A-z](0), [0-9](1),	_(2), &(3), "(4), SEOF(5), other(6) */
-/*  [A-z] ,[0-9],    ' ,   " ,  {   ,    } ,  #   ,  .  ,  ^  , +-  ,   _  ,   (   ,   )   , Other  ,    \e    ,    SEOF}
-	, L(0), D(1), SQ(2),DQ(3), LC(4), RC(5), SC(6), P(7), E(8), S(9), U(10), OP(11), CP(12),   O(13), sigma(14), EOF(15)} */
+/*  Changes to Transition Table, new count:
+	[A-z] ,[0-9],    ' ,   " ,  #   ,  .  ,  ^  , +/- ,   _  ,   (   ,Other  ,    \e    ,    SEOF,  \n    }
+	, L(0), D(1), SQ(2),DQ(3), SC(4), P(5), E(6), S(7), U(8) , OP( 9),  O(10), sigma(11), EOF(12), EOS(13)} */
 
 apc_intg nextClass(apc_char c) {
 	apc_intg val = -1;
@@ -380,17 +436,21 @@ apc_intg nextClass(apc_char c) {
 		val = 12;
 		break;
 
-	case INDENT_T:
+	case EOS_T:
 		val = 13;
 		break;
 
-	case LOGICSTMT_T:
-		val = 14;
-		break;
+//	case INDENT_T:
+//		val = 13;
+//		break;
 
-	case EQUALS_T:
-		val = 14;
-		break;
+//	case LOGICSTMT_T:
+//		val = 14;
+//		break;
+
+//	case EQUALS_T:
+//		val = 14;
+//		break;
 	default:
 		if (isalpha(c))
 			val = 0;
@@ -527,7 +587,7 @@ Token funcKEY(apc_char lexeme[]) {
 			kwindex = j;
 	if (kwindex != -1) {
 		currentToken.code = KEY_T;
-		currentToken.attribute.codeType = kwindex;
+		currentToken.attribute.codeType = kwindex; //kwindex
 	}
 
 	else {
@@ -552,6 +612,18 @@ Token funcKEY(apc_char lexeme[]) {
 Token funcErr(apc_char lexeme[]) {
 	Token currentToken = { 0 };
 	apc_intg i = 0, len = (apc_intg)strlen(lexeme);
+	apc_intg x = 0; //check
+
+	for (int i = 0; i < len; i++) {
+		if (lexeme[i] == ('\n'))
+			x = 1;
+	}
+
+	if (x == 0) {
+		currentToken.code = VID_T;
+		return currentToken;
+	}
+
 	if (len > ERR_LEN) {
 		strncpy(currentToken.attribute.errLexeme, lexeme, ERR_LEN - 3);
 		currentToken.attribute.errLexeme[ERR_LEN - 3] = CHARSEOF0;
@@ -594,9 +666,7 @@ apc_void printToken(Token t) {
 		printf("KW_T\t\t%s\n", keywordTable[t.attribute.codeType]);
 		break;
 
-	case INDENT_T:
-		printf("INDENT_T\t\t%s\n", t.attribute.idLexeme);
-		break;
+
 
 	case EQUALS_T:
 		printf("EQUALS_T\t\t%s\n", t.attribute.idLexeme);
@@ -605,7 +675,9 @@ apc_void printToken(Token t) {
 	case IL_T:
 		printf("IL_T\t\t%d\n", t.attribute.intValue);
 		break;
-
+//	case INDENT_T:
+//		printf("INDENT_T\t\t%s\n", t.attribute.idLexeme);
+//		break;
 	case SQ_T:
 		printf("SQ_T\t\t%s\n", t.attribute.idLexeme);
 		break;
@@ -645,6 +717,7 @@ apc_void printToken(Token t) {
 		printf("MNID_T\t\t%s\n", t.attribute.idLexeme);
 		break;
 	case VID_T:
+		printf(" %s\n", t.attribute.idLexeme);
 		printf("VID_T\t\t%s\n", t.attribute.idLexeme);
 		break;
 
@@ -654,18 +727,53 @@ apc_void printToken(Token t) {
 		break;
 
 
-	
-		break;
-
-
 	case CP_T:
 		printf("CP_T\t\t%s\n", t.attribute.idLexeme);
 		break;
 
-	case LC_T:
-		printf("LPR_T\t\t%s\n", t.attribute.idLexeme);
+		/* Arithmetic Operators		*/
+
+	case SIGNP_T:
+		printf("POSITIVE_EXP\t\t%d\n", t.attribute.arithmeticOperator);
 		break;
 
+	case SIGNN_T:
+		printf("NEGATIVE_EXP\t\t%d\n", t.attribute.arithmeticOperator);
+		break;
+
+	case OP_ADD_T:
+		printf("OP_ADD_T\t\t%d\n", t.attribute.arithmeticOperator);
+		break;
+	case OP_SUB_T:
+		printf("OP_SUB_T\t\t%d\n", t.attribute.arithmeticOperator);
+		break;
+	case OP_MUL_T:
+		printf("OP_MUL_T\t\t%d\n", t.attribute.arithmeticOperator);
+		break;
+	case OP_DIV_T:
+		printf("OP_DIV_T\t\t%d\n", t.attribute.arithmeticOperator);
+		break;
+	case OP_EQ_T:
+		printf("OP_EQ_T\t\t%d\n", t.attribute.relationalOperator);
+		break;
+	case OP_NE_T:
+		printf("OP_NE_T\t\t%d\n", t.attribute.relationalOperator);
+		break;
+	case OP_GT_T:
+		printf("OP_GT_T\t\t%d\n", t.attribute.relationalOperator);
+		break;
+	case OP_LT_T:
+		printf("OP_LT_T\t\t%d\n", t.attribute.relationalOperator);
+		break;
+	case OP_AND_T:
+		printf("OP_AND_T\t\t%d\n", t.attribute.logicalOperator);
+		break;
+	case OP_OR_T:
+		printf("OP_OR_T\t\t%d\n", t.attribute.logicalOperator);
+		break;
+	case OP_NOT_T:
+		printf("OP_NOT_T\t\t%d\n", t.attribute.logicalOperator);
+		break;
 
 /*	case LC_T:
 		printf("LPR_T\n");
@@ -686,8 +794,6 @@ apc_void printToken(Token t) {
 		printf("RBR_T\n");
 		break;
 */
-
-
 	default:
 		printf("Scanner error: invalid token code: %d\n", t.code);
 	}
@@ -696,6 +802,21 @@ apc_void printToken(Token t) {
 /*
 TO_DO: (If necessary): HERE YOU WRITE YOUR ADDITIONAL FUNCTIONS (IF ANY).
 */
+
+/* Arithmetic Function:
+OP_ADD_T, /* Add Operator 
+OP_SUB_T, /* Subtract Operator 
+OP_MUL_T, /* Multiply Operator 
+OP_DIV_T, /* Division Operator 
+OP_EQ_T, /* EQUALS (==) Operator 
+OP_NE_T, /* NOT EQUAL (!=) Operator 
+OP_GT_T, /* Greater Than Operator ( > )
+OP_LT_T, /* Less Than Operator ( < ) 
+OP_AND_T, /* AND Operator 
+OP_OR_T, /* OR Operator 
+OP_NOT_T /* NOT Operator
+*/
+
 
 Token funcCL(apc_char lexeme[]) {
 	Token currentToken = { 0 };
@@ -748,6 +869,7 @@ Token funcVar(apc_char lexeme[]) {
 	}
 	return currentToken;
 }
+
 
 /* Floating point function taken from week 10 demo, hybridized to acknowledge
 ApouC compiler floating point numbers */

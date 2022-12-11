@@ -46,7 +46,7 @@
 /* TO_DO: Define Token codes - Create your token classes */
 enum TOKENS {
 
-	ERR_T,		/*  0: Error token */ //0
+	ERR_T = 60,		/*  0: Error token */ //0
 	EOS_T,		/*  1 End of statement (\n) */ //1
 	RTE_T,		/*  9: Run-time error token */ //2
 	SEOF_T,		/* 11: Source end-of-file token */ //3
@@ -63,7 +63,19 @@ enum TOKENS {
 	INDENT_T, /*13 Indentation*/
 	EQUALS_T, /* Assignment operator*/
 	LOGICSTMT_T, /*Logic statement terminal operator */
-	OP_T
+	OP_T,	/* Open Parenthesis Operator*/
+	CP_T, /* Close Parenthesis Operator */
+	OP_ADD_T, /* Add Operator */ 
+	OP_SUB_T, /* Subtract Operator */
+	OP_MUL_T, /* Multiply Operator */
+	OP_DIV_T, /* Division Operator */
+	OP_EQ_T, /* EQUALS (==) Operator */
+	OP_NE_T, /* NOT EQUAL (!=) Operator */
+	OP_GT_T, /* Greater Than Operator ( > )*/
+	OP_LT_T, /* Less Than Operator ( < ) */
+	OP_AND_T, /* AND Operator */
+	OP_OR_T, /* OR Operator */
+	OP_NOT_T /* NOT Operator*/
 };
 
 /* TO_DO: Operators token attributes */
@@ -124,7 +136,7 @@ typedef struct Token {
 /* These constants will be used on nextClass */
 
 
-
+#define	INDENT_T	'\t' /*Tab 8*/
 
 #define SQ_T		'\''/* 2: Single Quote Token ['] */
 
@@ -177,7 +189,7 @@ static apc_intg transitionTable[][TABLE_COLUMNS] = {
 	Removing Column 4 (left brace) and column 5 (right brace): Do not need to create a Lexeme that encapsulated every single character within the { } brackets,
 	the purpose is to recognize when to begin the recognition of a segment and its ending using the Parser..?
 
-	We look to retract the identifiers that access their final state INCLUDING the token that leads to that situation:
+	We look to retract the identifiers that access their finalfIL_T state INCLUDING the token that leads to that situation:
 	Ex of FSWR: MNID -> print( -> why? because ( brings us to final state
 	We look to NOT retract identifiers that access their final state NOT including the token that leads to that situation:\
 	Ex of FSNR: VID -> aliab<\n> -> why? because \n brought us to our final state, does NOT represent the VID.
@@ -185,15 +197,13 @@ static apc_intg transitionTable[][TABLE_COLUMNS] = {
 	Changes to Transition Table, new count:
 	[A-z] ,[0-9],    ' ,   " ,  #   ,  .  ,  ^  , +/- ,   _  ,   (   ,Other  ,    \e    ,    SEOF,  \n    }
 	, L(0), D(1), SQ(2),DQ(3), SC(4), P(5), E(6), S(7), U(8) , OP( 9),  O(10), sigma(11), EOF(12), EOS(13)}
-	*/
-
-/*  [A-z] ,[0-9],    ' ,   " ,  #   ,  .  ,  ^  , +/- ,   _  ,   (   ,Other  ,    \e    ,    SEOF,  \n    }
+	 [A-z] ,[0-9],    ' ,   " ,  #   ,  .  ,  ^  , +/- ,   _  ,   (   ,Other  ,    \e    ,    SEOF,  \n    }
 	, L(0), D(1), SQ(2),DQ(3), SC(6), P(7), E(8), S(9), U(10), OP(11),  O(13), sigma(14), EOF(15), EOS(16)} */
 	/* Edit: State 0 used to allow for an underscore to exist, in order to identify the RE path for VID's, no longer doing this.*/
 	{    1,   10,     7,    5,    22, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,      ESNR,   ESWR,  ESWR},	//S0: NOAS
 	{    1,    1,     4,    4,     4,    4,    4,    4,     1,      3,      4,         4,   ESWR,     4},	//S1: NOAS
 	{    2,    2,  ESNR,    2,  ESNR, ESNR, ESNR, ESNR,     2,   ESNR,      2,         4,   ESWR,     4},	//S2: NOAS
-	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S3: ASNR (MNID_T)
+	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S3: ASNR ()
 	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S4: ASWR (KEY)
 	{    5,    5,     5,    6,     5,    5,    5,    5,     5,      5,      5,         5,   ESWR,  ESWR},	//S5: NOAS
 	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S6: ASNR SL_T
@@ -265,7 +275,7 @@ static apc_intg stateType[] = { //some states are not final, some are final
 	NOFS, /* 22 */
 	FSNR, /* 23 (SLC_T) - Single Line Comment */
 	NOFS, /* 24 */
-	FSNR, /* 25 (FPL_T) - Floating Point Literal (Ex: 12.33e+44 OR 12.33e-5) */
+	FSWR, /* 25 (FPL_T) - Floating Point Literal (Ex: 12.33e+44 OR 12.33e-5) */
 	NOFS, /* 26 */
 	NOFS, /* 27 */
 	//FSNR, /* 28 (VID_T) - Variable Identifier (Ex: _x OR _hands as variables) */

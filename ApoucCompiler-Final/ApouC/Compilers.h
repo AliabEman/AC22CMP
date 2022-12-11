@@ -40,7 +40,7 @@
 #ifndef COMPILERS_H_
 #define COMPILERS_H_
 
-#define DEBUG 0
+#define DEBUG 1
 
 /*
  * ............................................................................
@@ -114,8 +114,8 @@ Main functions signatures
 apc_intg mainReader  (apc_intg argc, apc_char** argv);
 
 apc_intg mainScanner (apc_intg argc, apc_char** argv);
-/*apc_intg mainParser(apc_intg argc, apc_char** argv);
-*/
+apc_intg mainParser(apc_intg argc, apc_char** argv);
+
 apc_void printLogo();
 
 #endif

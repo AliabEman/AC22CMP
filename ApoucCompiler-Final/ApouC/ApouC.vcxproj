@@ -129,13 +129,16 @@
   <ItemGroup>
     <ClInclude Include="Compilers.h" />
     <ClInclude Include="Header.h" />
+    <ClInclude Include="Parser.h" />
     <ClInclude Include="Reader.h" />
     <ClInclude Include="Scanner.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Compilers.c" />
+    <ClCompile Include="MainParser.c" />
     <ClCompile Include="MainReader.c" />
     <ClCompile Include="MainScanner.c" />
+    <ClCompile Include="Parser.c" />
     <ClCompile Include="Reader.c" />
     <ClCompile Include="Scanner.c" />
   </ItemGroup>
