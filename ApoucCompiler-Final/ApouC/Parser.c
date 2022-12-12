@@ -53,6 +53,8 @@ apc_void startParser() {
 	lookahead = tokenizer();
 	if (lookahead.code != SEOF_T) { //if file is not empty run the program
 		program();
+		printf("%s%s\n", STR_LANGNAME, ": Program parsed"); 
+		//The use of recursion in my program keeps calling the program() function
 	} 
 	matchToken(SEOF_T, NO_ATTR); //expected to see SEOF_T at the end of the tokenizer
 	printf("%s%s\n", STR_LANGNAME, ": Source file parsed");
@@ -121,32 +123,110 @@ apc_void printError() {
 	case ERR_T:
 		printf("*ERROR*: %s\n", t.attribute.errLexeme);
 		break;
-	case SEOF_T:
-		printf("SEOF_T\t\t%d\t\n", t.attribute.seofType);
-		break;
-	case MNID_T:
-		printf("MNID_T:\t\t%s\t\n", t.attribute.idLexeme);
-		break;
-	case SL_T:
-		printf("SL_T: %s\n", readerGetContent(stringLiteralTable, t.attribute.contentString));
-		break;
 	case KEY_T:
-		printf("KEY_T: %s\n", keywordTable[t.attribute.codeType]);
+		printf("KW_T\t\t%s\n", keywordTable[t.attribute.codeType]);
 		break;
-	case LC_T:
-		printf("LC_T\n");
+
+	case EQUALS_T:
+		printf("EQUALS_T\t\t%s\n", t.attribute.idLexeme);
 		break;
-	case RC_T:
-		printf("RC_T\n");
+
+	case IL_T:
+		printf("IL_T\t\t%d\n", t.attribute.intValue);
 		break;
-	case OP_T:
-		printf("LBR_T\n");
+		//	case INDENT_T:
+		//		printf("INDENT_T\t\t%s\n", t.attribute.idLexeme);
+		//		break;
+	case SQ_T:
+		printf("SQ_T\t\t%s\n", t.attribute.idLexeme);
 		break;
-	case CP_T:
-		printf("RBR_T\n");
+	case FPL_T:
+		printf("FPL_T\t\t%.4f\n", t.attribute.floatValue);
 		break;
+	case SEOF_T:
+		printf("SEOF_T\n", t.attribute.seofType);
+		break;
+	case LOGICSTMT_T:
+		printf("LOGICSTMT_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+		//Broken Token Cases:
+	case CL_T:
+		printf("CL_T\t\t%d\t ", (apc_intg)t.attribute.codeType);
+		printf("%s\n", readerGetContent(stringLiteralTable, (apc_intg)t.attribute.codeType));
+		break;
+
 	case EOS_T:
-		printf("NA\n");
+		printf("EOS_T\n");
+		break;
+
+
+	case MNID_T:
+		printf("MNID_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+
+	case VID_T:
+		printf("VID_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+
+	case SL_T:
+		printf("STR_T\t\t%d\t ", (apc_intg)t.attribute.codeType);
+		printf("%s\n", readerGetContent(stringLiteralTable, (apc_intg)t.attribute.codeType));
+		break;
+
+	case SEP_T:
+		printf("SEP_T\n");
+		break;
+
+	case OP_T:
+		printf("OP_T\n");
+		break;
+
+	case CP_T:
+		printf("CP_T\n");
+		break;
+
+		/* Arithmetic Operators		*/
+
+	case SIGNP_T:
+		printf("POSITIVE_EXP\t\t%d\n", t.attribute.arithmeticOperator);
+		break;
+
+	case SIGNN_T:
+		printf("NEGATIVE_EXP\t\t%d\n", t.attribute.arithmeticOperator);
+		break;
+
+	case OP_ADD_T:
+		printf("OP_ADD_T\n");
+		break;
+	case OP_SUB_T:
+		printf("OP_SUB_T\n");
+		break;
+	case OP_MUL_T:
+		printf("OP_MUL_T\n");
+		break;
+	case OP_DIV_T:
+		printf("OP_DIV_T\n");
+		break;
+	case OP_EQ_T:
+		printf("OP_EQ_T\n");
+		break;
+	case OP_NE_T:
+		printf("OP_NE_T\n");
+		break;
+	case OP_GT_T:
+		printf("OP_GT_T\n");
+		break;
+	case OP_LT_T:
+		printf("OP_LT_T\n");
+		break;
+	case OP_AND_T:
+		printf("OP_AND_T\n");
+		break;
+	case OP_OR_T:
+		printf("OP_OR_T\n");
+		break;
+	case OP_NOT_T:
+		printf("OP_NOT_T\n");
 		break;
 	default:
 		printf("%s%s%d\n", STR_LANGNAME, ": Scanner error: invalid token code: ", t.code);
@@ -180,7 +260,7 @@ apc_void program() {
 		*/
 		//if (strncmp(lookahead.attribute.idLexeme, LANG_MAIN, 4) == 0) {
 			//if (strncmp(lookahead.code, KW_def, 5) == 0) {
-		if (lookahead.attribute.codeType == KW_def) {
+		if (lookahead.attribute.codeType == KW_def) { //function definitions
 			matchToken(KEY_T, KW_def); // def
 			matchToken(MNID_T, NO_ATTR); // function0(
 			matchToken(CP_T, NO_ATTR); // )
@@ -195,13 +275,24 @@ apc_void program() {
 		else {
 			printError();
 		}
+	case EOS_T:
+		matchToken(EOS_T, NO_ATTR);
+		break;
+	case VID_T:
+		codeSession();
+		break;
+
 	case SEOF_T:
 		; // Empty
 		break;
 	default:
 		printError();
 	}
-	printf("%s%s\n", STR_LANGNAME, ": Program parsed");
+
+	if (lookahead.code != SEOF_T) {
+		//lookahead = tokenizer();
+		program();
+	}
 }
 
 /*
@@ -228,7 +319,8 @@ apc_void program() {
  */
 apc_void optVarListDeclarations() {
 	switch (lookahead.code) {
-	default:
+
+	default: // e
 		; // Empty
 	}
 	printf("%s%s\n", STR_LANGNAME, ": Optional Variable List Declarations parsed");
@@ -275,6 +367,26 @@ apc_void optionalStatements() {
 			statements();
 			break;
 		}
+	case IL_T:
+			matchToken(IL_T, NO_ATTR);
+			statements();
+			break;
+	case FPL_T:
+			matchToken(FPL_T, NO_ATTR);
+			statements();
+			break;
+	case SL_T:
+			matchToken(SL_T, NO_ATTR);
+			statements();
+			break;
+	case CL_T:
+			matchToken(IL_T, NO_ATTR);
+			statements();
+			break;
+	case VID_T:
+		matchToken(VID_T, NO_ATTR);
+		statements();
+		break;
 	default:
 		; // Empty
 	}
@@ -316,30 +428,39 @@ apc_void statementsPrime() {
 		}
 		break;
 	case IL_T:
-		if (strncmp(lookahead.attribute.idLexeme, KW_int, 5) == 0) { //length of IL: 5
 			statements();
 			break;
-		}
 	case FPL_T:
-		if (strncmp(lookahead.attribute.idLexeme, KW_float, 10) == 0) { //length of FLP: 10
 			statements();
 			break;
-		}
 	case SL_T:
-		if (strncmp(lookahead.attribute.idLexeme, KW_string, 6) == 0) {
 			statements();
 			break;
-		}
 	case CL_T:
-		if (strncmp(lookahead.attribute.idLexeme, KW_char, 6) == 0) {
 			statements();
 			break;
-		}
 	case KEY_T:
-		if (strncmp(lookahead.attribute.idLexeme, LANG_WRTE, 6) == 0) {
+		if (strncmp(lookahead.attribute.idLexeme, LANG_MAIN, 6) == 0) {
 			statements();
 			break;
 		}
+	case EQUALS_T:
+		statements();
+		break;
+
+	case OP_T:
+		statements();
+		break;
+
+	case OP_ADD:
+	case OP_SUB:
+	case OP_DIV:
+	case OP_MUL:
+		statements();
+		break;
+	case EOS_T:
+		matchToken(EOS_T, NO_ATTR);
+		break;
 	default:
 		; //empty string
 	}
@@ -358,37 +479,106 @@ apc_void statement() {
 	switch (lookahead.code) {
 	case KEY_T:
 		switch (lookahead.attribute.codeType) {
+		case KW_if:
+		break;
+		
 		default:
 			printError();
 		}
 		break;
 	case MNID_T:
-		if (strncmp(lookahead.attribute.idLexeme, LANG_WRTE, 10) == 0) {
+		if (strncmp(lookahead.attribute.idLexeme, LANG_WRTE, 5) == 0) {
 			outputStatement();
 		}
-		if (strncmp(lookahead.attribute.idLexeme, LANG_READ, 10) == 0) {
-			outputStatement();
+		if (strncmp(lookahead.attribute.idLexeme, LANG_READ, 5) == 0) {
+			inputStatement();
 		}
 		break;
+	case IL_T:
+	case FPL_T:
+	case SL_T:
+	case CL_T:
+		outputVariableList();
+		break;
+
+	case EQUALS_T:
+		matchToken(EQUALS_T, NO_ATTR);
+		statements();
+		break;
+
+	case VID_T:
+		matchToken(VID_T, NO_ATTR);
+		outputArithmeticOperatorsList();
+		break;
+	case EOS_T:
+		matchToken(EOS_T, NO_ATTR);
+		break;
+
+	case OP_T:
+	case CP_T:
+		parenthesisOperators();
+		break;
+
+	case OP_ADD:
+	case OP_SUB:
+	case OP_DIV:
+	case OP_MUL:
+		statements();
+		break;
+
 	default:
 		printError();
 	}
+
 	printf("%s%s\n", STR_LANGNAME, ": Statement parsed");
+}
+
+apc_void parenthesisOperators() {
+	switch (lookahead.code) {
+	case OP_T:
+		matchToken(OP_T, NO_ATTR);
+		outputArithmeticOperatorsList();
+		break;
+	case CP_T:
+		matchToken(CP_T, NO_ATTR);
+		outputArithmeticOperatorsList();
+		break;
+	default:
+		;
+	}
+}
+
+
+
+/*
+ ************************************************************
+ * Input Statement
+ * BNF: <input statement> -> print& (<input statementPrime>);
+ * FIRST(<input statement>) = { MNID_T[ input( ] }
+ ***********************************************************
+ */
+apc_void inputStatement() {
+	matchToken(MNID_T, KW_input); // input(
+//	matchToken(LPR_T, NO_ATTR);
+	outputVariableList(); //parameter
+	matchToken(CP_T, NO_ATTR); // )
+	matchToken(EOS_T, NO_ATTR); // \n
+	printf("%s%s\n", STR_LANGNAME, ": Input statement parsed");
 }
 
 /*
  ************************************************************
  * Output Statement
  * BNF: <output statement> -> print& (<output statementPrime>);
- * FIRST(<output statement>) = { MNID_T(print&) }
+ * FIRST(<output statement>) = { MNID_T[ print( ] }
  ***********************************************************
  */
 apc_void outputStatement() {
-	matchToken(MNID_T, KW_def);
-//	matchToken(LPR_T, NO_ATTR);
-	outputVariableList();
-	matchToken(CP_T, NO_ATTR);
-	matchToken(EOS_T, NO_ATTR);
+	matchToken(MNID_T, KW_print); // print(
+	//	matchToken(LPR_T, NO_ATTR);
+	outputVariableList(); // parameter
+	matchToken(CP_T, NO_ATTR); // )
+	matchToken(EOS_T, NO_ATTR); // \n
 	printf("%s%s\n", STR_LANGNAME, ": Output statement parsed");
 }
 
@@ -396,25 +586,61 @@ apc_void outputStatement() {
  ************************************************************
  * Output Variable List
  * BNF: <opt_variable list> -> <variable list> | ϵ
- * FIRST(<opt_variable_list>) = { IVID_T, FVID_T, SVID_T, ϵ }
+ * FIRST(<opt_variable_list>) = { IL_T, FPL_T, SL_T, CL_T, ϵ }
  ***********************************************************
  */
 apc_void outputVariableList() {
 	switch (lookahead.code) {
 	case SL_T:
-		matchToken(SL_T, KW_string);
+		matchToken(SL_T, NO_ATTR);
+		outputArithmeticOperatorsList();
 		break;
 	case IL_T:
-		matchToken(IL_T, KW_int);
+		matchToken(IL_T, NO_ATTR);
+		outputArithmeticOperatorsList();
 		break;
 	case CL_T:
-		matchToken(SL_T, KW_char);
+		matchToken(SL_T, NO_ATTR);
+		outputArithmeticOperatorsList();
 		break;
 	case FPL_T:
-		matchToken(FPL_T, KW_float);
+		matchToken(FPL_T, NO_ATTR);
+		outputArithmeticOperatorsList();
+		break;
+	default:
+		printError();
+	}
+	if (lookahead.code == SEP_T) {
+		outputVariableList();
+	}
+
+	printf("%s%s\n", STR_LANGNAME, ": Output variable list parsed");
+}
+
+
+
+/*
+ ************************************************************
+ * Output Arithmetic Operators List
+ * BNF: <opt_variable list> -> <variable list> | ϵ
+ * FIRST(<opt_variable_list>) = { IL_T, FPL_T, SL_T, CL_T, ϵ }
+ ***********************************************************
+ */
+apc_void outputArithmeticOperatorsList() {
+	switch (lookahead.code) {
+	case OP_ADD_T:
+		matchToken(OP_ADD_T, NO_ATTR);
+		break;
+	case OP_SUB_T:
+		matchToken(OP_SUB_T, NO_ATTR);
+		break;
+	case OP_MUL_T:
+		matchToken(OP_MUL_T, NO_ATTR);
+		break;
+	case OP_DIV_T:
+		matchToken(OP_DIV_T, NO_ATTR);
 		break;
 	default:
 		;
 	}
-	printf("%s%s\n", STR_LANGNAME, ": Output variable list parsed");
 }

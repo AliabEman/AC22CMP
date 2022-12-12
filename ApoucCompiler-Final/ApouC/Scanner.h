@@ -137,9 +137,9 @@ typedef struct Token {
 
 
 #define	INDENT_T	'\t' /*Tab 8*/
+#define SEP_T		',' /* Statement separator */
 
 #define SQ_T		'\''/* 2: Single Quote Token ['] */
-
 #define DQ_T		'\"'/* 3: Double Quote Token ["] */
 #define LC_T		'{'	/* 4: Left Parenthesis Token [{] */ //MLC
 #define RC_T		'}'	/* 5: Right Parenthesis Token [}] */ //MLC
@@ -211,8 +211,8 @@ static apc_intg transitionTable[][TABLE_COLUMNS] = {
 	{ ESNR, ESNR,     9, ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,      ESNR,   ESWR,  ESWR},	//S8: NOAS
 	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S9: ASNR (CLL_T)
 	{   19,   10,    19,   19,    19,   11,   16,   19,    19,     19,     19,        19,   ESWR,    19},	//S10: NOAS
-	{ ESNR,   12,  ESNR, ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,      ESNR,   ESWR,  ESWR},	//S11:  NOAS
-	{ ESWR,   12,  ESWR, ESWR,  ESWR, ESWR,   14, ESWR,  ESWR,   ESWR,   ESWR,        13,   ESWR,    13},	//S12: NOAS
+	{ ESNR,   12,  ESNR, ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,     13,   ESNR,      ESNR,   ESWR,  ESWR},	//S11:  NOAS
+	{ ESWR,   12,  ESWR, ESWR,  ESWR, ESWR,   14, ESWR,  ESWR,   ESWR,     13,        13,   ESWR,    13},	//S12: NOAS
 	{   FS,   FS,    FS,   FS,    FS,   FS,   FS,   FS,    FS,     FS,     FS,        FS,     FS,    FS},	//S13: ASNR (FPL_T)
 	{ ESNR, ESNR,  ESNR, ESNR,  ESNR, ESNR, ESNR,   15,  ESNR,   ESNR,   ESNR,      ESNR,   ESWR,  ESWR},	//S14: NOAS
 	{ ESNR,   24,  ESNR, ESNR,  ESNR, ESNR, ESNR, ESNR,  ESNR,   ESNR,   ESNR,      ESNR,   ESWR,  ESWR},	//S15: NOAS
@@ -315,7 +315,6 @@ Token funcSLC	(apc_char lexeme[]);	//single line comment function
 Token funcIL	(apc_char lexeme[]);	//integer literal function
 Token funcFPL	(apc_char lexeme[]);	//floating point literal function
 Token funcVar	(apc_char lexeme[]);	//variable identifier function
-Token funcArit	(apc_char lexeme[]);	//arithmetic expression function
 
 /* 
  * Accepting function (action) callback table (array) definition 
@@ -374,7 +373,7 @@ Language keywords
 */
 
 /* TO_DO: Define the number of Keywords from the language */
-#define KWT_SIZE 12
+#define KWT_SIZE 13
 
 /* TO_DO: Define the list of keywords */
 static apc_char* keywordTable[KWT_SIZE] = {
@@ -391,6 +390,7 @@ static apc_char* keywordTable[KWT_SIZE] = {
 	"break",
 	"def",
 	"print",
+	"input"
 };
 
 /* NEW SECTION: About indentation */

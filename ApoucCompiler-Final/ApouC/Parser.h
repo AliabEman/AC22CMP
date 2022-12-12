@@ -79,7 +79,8 @@ enum KEYWORDS {
 	KW_do,
 	KW_break,
 	KW_def,
-	KW_print
+	KW_print,
+	KW_input
 };
 
 /* Function definitions */
@@ -93,12 +94,15 @@ Related with functions supposed to match with Null terminals*/
 apc_void program();
 apc_void dataSession();
 apc_void outputVariableList();
-apc_void optVarListDeclarations();
+apc_void optVarListDeclarations(); // IL FLP SL CL
+apc_void outputArithmeticOperatorsList(); // + - * /
 apc_void codeSession();
 apc_void optionalStatements();
 apc_void outputStatement();
+apc_void inputStatement();
 apc_void statement();
 apc_void statements();
 apc_void statementsPrime();
+apc_void parenthesisOperators();
 
 #endif
